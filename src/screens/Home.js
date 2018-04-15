@@ -228,11 +228,11 @@ export default class Home extends Component<{}> {
                                 <TouchableOpacity onPress={() => this.SeleccionarCategoriaHija(c.Cod_Categoria, c.Seleccionado)}
                                     activeOpacity={0.7} style={{ backgroundColor: '#FFF', flexDirection: 'row', alignItems: 'center', marginRight: 1 }}>
 
-                                    <Text style={{ color: c.Seleccionado == 1 ? '#1abc9c' : '#95a5a6', flex: 1, fontWeight: 'bold', paddingHorizontal: 5, marginLeft: 10, paddingVertical: 10 }}>{c.Des_Categoria}</Text>
+                                    <Text style={{ color: c.Seleccionado == 1 ? '#f60606' : '#95a5a6', flex: 1, fontWeight: 'bold', paddingHorizontal: 5, marginLeft: 10, paddingVertical: 10 }}>{c.Des_Categoria}</Text>
                                     <IconMaterial
                                         name={c.Seleccionado != 1 ? 'chevron-down' : 'chevron-up'}
                                         size={25} style={{ marginHorizontal: 10 }}
-                                        color={c.Seleccionado == 1 ? '#1abc9c' : '#95a5a6'}
+                                        color={c.Seleccionado == 1 ? '#f60606' : '#95a5a6'}
                                     />
 
                                 </TouchableOpacity>

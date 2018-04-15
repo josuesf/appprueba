@@ -149,17 +149,17 @@ export default class Producto extends Component {
                     ? <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         {this.state.Cantidad > 0 &&
                             <TouchableOpacity onPress={() => this.RestarProducto()} style={{ paddingLeft: 50, marginRight: 10 }}>
-                                <IconMaterial color={"#55efc4"} name='minus-box-outline' size={25} />
+                                <IconMaterial color={"#ef6d13"} name='minus-box-outline' size={25} />
                             </TouchableOpacity>}
                         {this.state.Cantidad > 0 &&
                             <Text style={{ fontWeight: 'bold' }} >{this.state.Cantidad}</Text>}
                         <TouchableOpacity onPress={() => this.AgregarProducto()} style={{ marginHorizontal: 10, paddingLeft: this.state.Cantidad > 0 ? 0 : 50 }}>
-                            <IconMaterial color={"#55efc4"} name='plus-box-outline' size={25} />
+                            <IconMaterial color={"#ef6d13"} name='plus-box-outline' size={25} />
                         </TouchableOpacity>
                     </View> :
                     <TouchableOpacity onPress={() => this.props.navigate('producto_detalle', { producto: this.props.producto, Cod_Mesa: this.props.Cod_Mesa })}
-                        style={{ marginHorizontal: 10, borderColor: '#55efc4', borderWidth: 2, marginLeft: 50, padding: 5, borderRadius: 5, flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ color: '#00b894', marginRight: 4 }} >Agregar</Text>
+                        style={{ marginHorizontal: 10, borderColor: '#ef6d13', borderWidth: 2, marginLeft: 50, padding: 5, borderRadius: 5, flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ color: '#ef6d13', marginRight: 4 }} >Agregar</Text>
 
                     </TouchableOpacity>}
 

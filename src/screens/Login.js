@@ -17,6 +17,7 @@ import {
     TextInput,
     ActivityIndicator,
     Alert,
+    Image,
 } from 'react-native';
 import { NavigationActions } from 'react-navigation'
 import WifiManager from 'react-native-wifi-manager'
@@ -44,9 +45,15 @@ export default class Login extends Component<{}> {
     }
 
     componentWillMount() {
-        /*if(store.getState().socket.connected){
-            this.BuscarProductos()
-        }*/
+        if (store.getState().tipo_usuario == 'EMPLEADO' && store.getState().id_usuario) {
+            const vista_mesas = NavigationActions.reset({
+                index: 0,
+                actions: [
+                    NavigationActions.navigate({ routeName: 'mesas' })
+                ]
+            })
+            this.props.navigation.dispatch(vista_mesas)
+        }
     }
 
     IniciarSesion = () => {
@@ -106,9 +113,12 @@ export default class Login extends Component<{}> {
                     title="Conectando"
                     message="Por favor, espere..."
                 />
+                <View style={{ marginTop: 20 }}>
+                    <Image source={require('../images/logomisky.png')} style={{height:100,width:100,alignSelf:'center'}} />
+                </View>
                 <View style={{ padding: 10 }}>
                     <Text style={styles.instructions}>Usuario</Text>
-                    <View style={{ height: 50, backgroundColor: '#FFF', borderRadius: 10, justifyContent: 'center' }}>
+                    <View style={{ height: 50, backgroundColor: '#ffeaa7', borderRadius: 5, justifyContent: 'center' }}>
                         <TextInput onChangeText={(text) => this.setState({ usuario: text })} autoCapitalize={'none'} underlineColorAndroid='transparent' style={{ padding: 0, marginHorizontal: 10, fontSize: 15 }} />
                     </View>
                 </View>
@@ -116,7 +126,7 @@ export default class Login extends Component<{}> {
                     <Text style={styles.instructions}>
                         Contraseña
                     </Text>
-                    <View style={{ height: 50, backgroundColor: '#FFF', borderRadius: 10, justifyContent: 'center' }}>
+                    <View style={{ height: 50, backgroundColor: '#ffeaa7', borderRadius: 10, justifyContent: 'center' }}>
                         <TextInput onChangeText={(text) => this.setState({ password: text })} autoCapitalize={'none'} underlineColorAndroid='transparent' secureTextEntry={true} style={{ padding: 0, marginHorizontal: 10, fontSize: 15 }} />
                     </View>
                 </View>
@@ -144,7 +154,7 @@ export default class Login extends Component<{}> {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FF5733',
+        backgroundColor: '#FFF',
     },
     camera: {
         flex: 0,
@@ -160,7 +170,7 @@ const styles = StyleSheet.create({
         margin: 10,
     },
     instructions: {
-        color: '#ffeaa7',
+        color: '#ef6d13',
         marginVertical: 10,
         fontSize: 18,
         fontWeight: 'bold'

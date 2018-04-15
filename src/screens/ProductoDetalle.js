@@ -140,7 +140,7 @@ export default class ProductoDetalle extends Component<{}> {
                                     value={p.Seleccionado || false}
                                     textValue={p.Nom_Precio}
                                     textPrecio={"S/." + p.PrecioUnitario.toFixed(2)}
-                                    colorActive={'#55efc4'}
+                                    colorActive={'#ef6d13'}
                                     textStyle={{ color: '#95a5a6' }} />)}
                         </View>
                     }
@@ -156,7 +156,7 @@ export default class ProductoDetalle extends Component<{}> {
                                     value={opc.Seleccionado || false}
                                     textValue={opc.Nom_Producto}
                                     textPrecio={"S/." + opc.PrecioUnitario.toFixed(2)}
-                                    colorActive={'#55efc4'}
+                                    colorActive={'#ef6d13'}
                                     textStyle={{ color: '#95a5a6' }} />}
                             {opc.CantidadMax_Grupo == 1 &&
                                 <CheckBox onPress={() => this.SeleccionarCheck(opc.Id_Producto)}
@@ -165,7 +165,7 @@ export default class ProductoDetalle extends Component<{}> {
                                     value={opc.Seleccionado || false}
                                     textValue={opc.Nom_Producto}
                                     textPrecio={"S/." + opc.PrecioUnitario.toFixed(2)}
-                                    colorActive={'#55efc4'}
+                                    colorActive={'#ef6d13'}
                                     textStyle={{ color: '#95a5a6' }} />
                             }
                             {opc.CantidadMax_Grupo > 1 &&
@@ -173,7 +173,7 @@ export default class ProductoDetalle extends Component<{}> {
                                     OnPressAgregarProducto={() => this.OnPressAgregarProducto(opc.Id_Producto, opc.Cod_TipoDetalle)}
                                     OnPresRestarProducto={() => this.OnPresRestarProducto(opc.Id_Producto, opc.Cod_TipoDetalle)}
                                     style={{ padding: 5 }}
-                                    colorIcon={"#55efc4"}
+                                    colorIcon={"#ef6d13"}
                                     textValue={opc.Nom_Producto}
                                     textPrecio={"S/." + opc.PrecioUnitario.toFixed(2)}
                                     Cantidad_Seleccionada={opc.Cantidad || 0}
