@@ -22,7 +22,7 @@ import {
 import { NavigationActions } from 'react-navigation'
 import WifiManager from 'react-native-wifi-manager'
 import Camera from 'react-native-camera'
-import { ProgressDialog } from 'react-native-simple-dialogs';
+import { ProgressDialog, Dialog } from 'react-native-simple-dialogs';
 import { URL_WS } from '../Constantes'
 import store from '../store'
 import Mesa from '../components/Mesa'
@@ -43,6 +43,7 @@ export default class Mesas extends Component<{}> {
             OrientationStatus: '',
             Height_Layout: '',
             Width_Layout: '',
+            cuentas_mesa:[]
         }
     }
 
@@ -95,26 +96,51 @@ export default class Mesas extends Component<{}> {
                     Cod_Mesa: Cod_Mesa,
                     Nom_Mesa: Nom_Mesa
                 })
-
                 if (data.productos_selec.length > 0) {
                     store.dispatch({
                         type: 'ADD_PRODUCTOS_SELECCIONADOS',
-                        productos: data.productos_selec.filter(p => p.Id_Referencia==0),
-                        producto_detalles: data.productos_selec.filter(p => p.Id_Referencia!=0)
+                        productos: data.productos_selec.filter(p => p.Id_Referencia == 0),
+                        producto_detalles: data.productos_selec.filter(p => p.Id_Referencia != 0)
                     })
-                    store.dispatch({
-                        type: 'ADD_NUMERO_COMPROBANTE',
-                        Numero_Comprobante: data.productos_selec[0].Numero,
+                    pedidos = data.productos_selec
+                    this.setState({
+                        cuentas_mesa: pedidos.filter((p, i) => {
+                            if (i + 1 != pedidos.length) {
+                                if (p.Numero != pedidos[i + 1].Numero)
+                                    return p
+                                else
+                                    return null
+                            } else
+                                return p
+                        })
+                    },()=>{
+                        if(this.state.cuentas_mesa.length==1){
+                            store.dispatch({
+                                type: 'ADD_NUMERO_COMPROBANTE',
+                                Numero_Comprobante: data.productos_selec[0].Numero,
+                            })
+                            this.props.navigation.navigate('main', { productos_selec: data.productos_selec })
+                        }else{
+                            this.setState({OpcionesVisible:true})
+                        }
                     })
+                    
                 } else {
                     store.dispatch({
                         type: 'ADD_NUMERO_COMPROBANTE',
                         Numero_Comprobante: '',
                     })
+                    this.props.navigation.navigate('main', { productos_selec: data.productos_selec })
                 }
-                this.props.navigation.navigate('main', { productos_selec: data.productos_selec })
-
             })
+    }
+    AbrirCuentaMesa(Numero) {
+        this.setState({OpcionesVisible:false})
+        store.dispatch({
+            type: 'ADD_NUMERO_COMPROBANTE',
+            Numero_Comprobante: Numero,
+        })
+        this.props.navigation.navigate('main',{ productos_selec: [] })
     }
     _handleBarCodeRead(e) {
         Vibration.vibrate();
@@ -187,7 +213,18 @@ export default class Mesas extends Component<{}> {
                     />
 
                 </View>
-
+                <Dialog
+                    visible={this.state.OpcionesVisible}
+                    onTouchOutside={() => this.setState({ OpcionesVisible: false })} >
+                    <View>
+                        {this.state.cuentas_mesa.map((c, i) =>
+                            <TouchableOpacity key={i} activeOpacity={0.5} onPress={() => this.AbrirCuentaMesa(c.Numero)}
+                                style={{ marginVertical: 10, backgroundColor: '#fff' }}>
+                                <Text style={{ fontWeight: 'bold', color: 'gray' }}>Cuenta {c.Numero}</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                </Dialog>
 
 
             </View>

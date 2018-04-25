@@ -78,7 +78,7 @@ export default class ProductoSeleccionado extends Component {
 
                     <View style={{ flexDirection: 'column', marginHorizontal: 10, }}>
                         <View style={{ alignItems: 'center', flexDirection: 'row' }}>
-                            {this.props.producto.Estado_Pedido =='CONFIRMADO' && <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >{this.state.Cantidad+" "}</Text>}
+                            {this.props.producto.Estado_Pedido =='CONFIRMADO' && <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >({this.state.Cantidad+") "}</Text>}
                             <Text style={{ color: '#95a5a6', fontWeight: 'bold' }}>{this.props.producto.Nom_Producto}</Text>
                             <Text style={{ color: '#95a5a6', fontSize: 0, marginLeft: 2 }}>{moneda + (parseFloat(this.props.producto.PrecioUnitario)).toFixed(2)}</Text>
                         </View>

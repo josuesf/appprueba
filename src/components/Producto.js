@@ -53,6 +53,7 @@ export default class Producto extends Component {
             }else{
                 p=producto
                 p.Id_Detalle=producto.Id_Producto
+                
             }
         }else{
             p=producto
@@ -60,6 +61,7 @@ export default class Producto extends Component {
         p.Estado_Pedido = 'PENDIENTE'
         p.Cantidad = this.state.Cantidad + 1
         p.Cod_Mesa = this.props.Cod_Mesa
+        p.Numero =store.getState().Numero_Comprobante
         // var Id_Detalle = p.Id_Producto
         // var found = store.getState().productos.find(p => {
         //     return (p.Id_Detalle == Id_Detalle && p.Estado_Pedido == 'CONFIRMADO');

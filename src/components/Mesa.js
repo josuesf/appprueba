@@ -20,13 +20,24 @@ export default class Mesa extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            Estado_Mesa: props.mesa.Estado_Mesa
+            Estado_Mesa: props.mesa.Estado_Mesa,
+            Nro_Cuentas: props.mesa.Nro_Cuentas,
+            Mesero: props.mesa.Mesero,
+            Cod_Mesa: props.mesa.Cod_Mesa,
         }
     }
     componentDidMount() {
         store.subscribe(() => {
             if (this.refs.ref_Mesa && store.getState().last_event == 'ADD_ESTADO_MESA' && store.getState().Cod_Mesa == this.props.mesa.Cod_Mesa) {
-                this.setState({ Estado_Mesa: store.getState().Estado_Mesa })
+                this.setState({ Estado_Mesa: store.getState().Estado_Mesa, Nro_Cuentas: this.state.Nro_Cuentas + 1 })
+            }
+        })
+        store.getState().socket.on('NUEVA_COMANDA', (data) => {
+            if (data.Cod_Mesa == this.state.Cod_Mesa) {
+                this.setState({
+                    Mesero: data.Cod_Usuario, Estado_Mesa: data.Estado_Mesa,
+                    Nro_Cuentas: this.state.Nro_Cuentas + (data.Numero == '' ? 1 : 0)
+                })
             }
         })
     }
@@ -40,16 +51,20 @@ export default class Mesa extends Component {
                 return '#ff7675'
         }
         return (
-            <TouchableOpacity ref='ref_Mesa' activeOpacity={0.7} onPress={this.props.SeleccionarMesa} style={{
-                marginBottom: 10, height: this.props.width_state / 5, width: this.props.width_state / 5, justifyContent: 'center',
-                backgroundColor: '#FFF', alignItems: 'center',
-                marginRight: 15
-            }}>
-
-                <IconMaterial color={ColorMesa(this.state.Estado_Mesa)}
-                    name='adjust' size={40} />
-                <Text style={{ alignSelf: 'center', fontWeight: 'bold', color: '#2c2c54' }}>{this.props.mesa.Nom_Mesa}</Text>
-            </TouchableOpacity>
+            <View style={{ alignItems: 'center', flexDirection: 'column' }}>
+                <TouchableOpacity ref='ref_Mesa' activeOpacity={0.7} onPress={this.props.SeleccionarMesa} style={{
+                    marginBottom: 10, height: this.props.width_state / 5, width: this.props.width_state / 5,
+                    justifyContent: 'center',
+                    backgroundColor: '#FFF', alignItems: 'center', borderColor: ColorMesa(this.state.Estado_Mesa), borderWidth: 2,
+                    marginRight: 15
+                }}>
+                    {this.state.Nro_Cuentas > 0 && <View style={{ backgroundColor: 'red', height: 20, width: 20, borderRadius: 10, alignItems: 'center' }}>
+                        <Text style={{ color: '#FFF' }}>{this.state.Nro_Cuentas}</Text>
+                    </View>}
+                    <Text style={{ alignSelf: 'center', fontWeight: 'bold', color: '#2c2c54' }}>{this.props.mesa.Nom_Mesa}</Text>
+                    <Text style={{ fontSize: 8, color: '#2c2c54' }}>{this.state.Mesero}</Text>
+                </TouchableOpacity>
+            </View>
         );
 
     }

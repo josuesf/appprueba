@@ -37,13 +37,13 @@ export default class Pedido extends Component<{}> {
             headerStyle: {
                 backgroundColor: '#FF5733',
             },
-            headerRight: (
-                store.getState().tipo_usuario == 'EMPLEADO' &&
-                <TouchableOpacity onPress={params.AbrirOpciones} style={{ paddingHorizontal: 10 }}>
-                    <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
-                </TouchableOpacity>
+            // headerRight: (
+            //     store.getState().tipo_usuario == 'EMPLEADO' &&
+            //     <TouchableOpacity onPress={params.AbrirOpciones} style={{ paddingHorizontal: 10 }}>
+            //         <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
+            //     </TouchableOpacity>
 
-            ),
+            // ),
 
         }
     }
@@ -53,7 +53,7 @@ export default class Pedido extends Component<{}> {
             'Setting a timer'
         ];
         this.state = {
-            productos: store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa),
+            productos: store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa && p.Numero == store.getState().Numero_Comprobante),
             total: 0,
             Numero_Comprobante: store.getState().Numero_Comprobante,
             Nom_Cliente: ''
@@ -74,7 +74,7 @@ export default class Pedido extends Component<{}> {
                     productos: []
                 }, () => {
 
-                    productos = store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa)
+                    productos = store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa && p.Numero == store.getState().Numero_Comprobante)
                     this.setState({ productos: productos })
                     this.CalcularTotal(productos)
 
@@ -176,7 +176,7 @@ export default class Pedido extends Component<{}> {
                 Nom_Cliente: this.state.Nom_Cliente,
                 Total: this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
                 Cod_Vendedor: store.getState().id_usuario,
-                Estado_Mesa: 'OCUPADO'
+                Estado_Mesa: 'OCUPADO',
             })
         }
         fetch(URL_WS + '/confirmar_pedido_sql', parametros)
@@ -197,11 +197,14 @@ export default class Pedido extends Component<{}> {
                         Numero_Comprobante: data.Numero
 
                     })
-                    store.dispatch({
-                        type: 'ADD_ESTADO_MESA',
-                        Estado_Mesa: 'OCUPADO'
+                    if (this.state.Numero_Comprobante == "") {
+                        
+                        store.dispatch({
+                            type: 'ADD_ESTADO_MESA',
+                            Estado_Mesa: 'OCUPADO'
 
-                    })
+                        })
+                    }
                     //Guardar Numero
                     Alert.alert('Gracias!', 'Tu pedido esta en cola')
                 } else {
@@ -307,12 +310,12 @@ export default class Pedido extends Component<{}> {
                     && this.state.productos.filter(p => p.Estado_Pedido != 'CONFIRMADO').length > 0 &&
                     <TouchableOpacity activeOpacity={0.5} onPress={this.ConfirmarPedido}
                         style={{ height: 50, borderRadius: 5, marginHorizontal: 10, marginVertical: 10, backgroundColor: '#ff7675', justifyContent: 'center' }}>
-                        <Text style={{ fontWeight: 'bold', color: '#FFF', alignSelf: 'center' }}>CONFIRMAR PEDIDO S/.{this.state.total.toFixed(2)}</Text>
+                        <Text style={{ fontWeight: 'bold', color: '#FFF', alignSelf: 'center' }}>CONFIRMAR PEDIDO {/*'S/.'+this.state.total.toFixed(2)*/}</Text>
                     </TouchableOpacity>}
-                <View activeOpacity={0.5} onPress={this.HacerPedido}
+                {this.state.Mostrar_Total && <View activeOpacity={0.5} onPress={this.HacerPedido}
                     style={{ height: 50, borderRadius: 5, marginHorizontal: 10, marginVertical: 10, backgroundColor: '#fff', justifyContent: 'center' }}>
                     <Text style={{ fontWeight: 'bold', color: 'gray', alignSelf: 'center' }}>TOTAL PEDIDO S/.{this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0).toFixed(2)}</Text>
-                </View>
+                </View>}
                 <Dialog
                     visible={this.state.OpcionesVisible}
                     onTouchOutside={() => this.setState({ OpcionesVisible: false })} >

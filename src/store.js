@@ -6,14 +6,14 @@ const reducer = (state, action) => {
         producto_detalles=[]
         if(action.producto_detalles) producto_detalles = action.producto_detalles
         var found = state.productos.find(p => {
-            return (p.Id_Detalle === action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa);
+            return (p.Id_Detalle === action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa && p.Numero==state.Numero_Comprobante);
         });
 
         if (found) {
             return {
                 ...state,
                 productos: state.productos.filter(p => {
-                    if (p.Id_Detalle == action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa) {
+                    if (p.Id_Detalle == action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa && p.Numero==state.Numero_Comprobante) {
                         p.Cantidad = action.producto.Cantidad
                     }
                     return p
@@ -40,7 +40,7 @@ const reducer = (state, action) => {
             return {
                 ...state,
                 productos: state.productos.filter(p => {
-                    if (p.Id_Detalle == action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa) {
+                    if (p.Id_Detalle == action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa && p.Numero==state.Numero_Comprobante) {
                         p.Cantidad = action.producto.Cantidad
                     }
                     return p
@@ -52,7 +52,7 @@ const reducer = (state, action) => {
             return {
                 ...state,
                 productos: state.productos.filter(p => {
-                    if (p.Id_Detalle == action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa) {
+                    if (p.Id_Detalle == action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa && p.Numero==state.Numero_Comprobante) {
                         return null
                     }
                     return p
@@ -67,7 +67,7 @@ const reducer = (state, action) => {
         return {
             ...state,
             productos: state.productos.filter(p => {
-                if (p.Id_Detalle == action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa) {
+                if (p.Id_Detalle == action.producto.Id_Detalle && p.Cod_Mesa == action.producto.Cod_Mesa && p.Numero==state.Numero_Comprobante) {
                     return null
                 }
                 return p

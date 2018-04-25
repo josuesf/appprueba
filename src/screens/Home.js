@@ -21,10 +21,12 @@ import { NavigationActions } from 'react-navigation'
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconFondation from 'react-native-vector-icons/Foundation'
+import { Dialog} from 'react-native-simple-dialogs';
 import Producto from '../components/Producto'
 import store from '../store'
 import { URL_WS } from '../Constantes'
 const { width, height } = Dimensions.get('window')
+
 export default class Home extends Component<{}> {
     static navigationOptions = {
         title: 'Productos',
@@ -58,7 +60,7 @@ export default class Home extends Component<{}> {
         })
     }
     CalcularTotal = () => {
-        productos = store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa)
+        productos = store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa && p.Numero==store.getState().Numero_Comprobante)
         this.setState({
             total: productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
             cantidad_items: productos.reduce((a, b) => a + (b.Cantidad), 0),
@@ -144,7 +146,7 @@ export default class Home extends Component<{}> {
                 c["Seleccionado"] = 0
             return c
         })
-        this.setState({ categorias: [],productos:[] }, () => this.setState({ categorias: categorias,productos:this.state.productos_todos.filter(p=>p.Cod_Categoria==Cod_Categoria) }))
+        this.setState({ categorias: [], productos: [] }, () => this.setState({ categorias: categorias, productos: this.state.productos_todos.filter(p => p.Cod_Categoria == Cod_Categoria) }))
     }
     RecuperarProductosXCategoria = (Cod_Categoria) => {
         this.setState({ buscando: true, productos: [] })
@@ -198,8 +200,19 @@ export default class Home extends Component<{}> {
                 this.setState({ productos_todos: data.productos, buscando: false })
             })
     }
+    NuevaCuenta=()=>{
+        this.setState({OpcionesVisible:false})
+        const nuevo = NavigationActions.back({
+            key:'main',
+          });
+        store.dispatch({
+            type: 'ADD_NUMERO_COMPROBANTE',
+            Numero_Comprobante: '',
+        })
+        this.props.navigation.dispatch(nuevo)
+    }
     render() {
-        const { navigate } = this.props.navigation;
+        const { navigate,goBack } = this.props.navigation;
         return (
             <View style={styles.container}>
                 <StatusBar
@@ -207,8 +220,17 @@ export default class Home extends Component<{}> {
                     barStyle="default"
                 />
                 <View style={{ height: 60, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FF5733', justifyContent: 'center' }}>
-                    <Text style={{ color: '#ffeaa7', flex: 1, marginHorizontal: 10, fontWeight: 'bold', alignSelf: 'center' }}>{store.getState().Nom_Mesa}</Text>
-
+                    <TouchableOpacity onPress={()=>goBack()} style={{ paddingHorizontal: 10 }}>
+                        <IconMaterial color={'#ffeaa7'} name='arrow-left' size={25} />
+                    </TouchableOpacity>
+                    <View style={{flex: 1, marginHorizontal: 10}}>
+                        <Text style={{ color: '#ffeaa7', fontWeight: 'bold' }}>{store.getState().Nom_Mesa}</Text>
+                        <Text style={{ color: '#ffeaa7' }}>Cuenta {store.getState().Numero_Comprobante}</Text>
+                    </View>
+                    {store.getState().Numero_Comprobante!='' &&
+                    <TouchableOpacity onPress={()=>this.setState({OpcionesVisible:true})} style={{ paddingHorizontal: 10 }}>
+                        <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
+                    </TouchableOpacity>}
                 </View>
                 {/*<View style={{ backgroundColor: '#40407a' }}>
                     <ScrollView horizontal={true} >
@@ -265,12 +287,21 @@ export default class Home extends Component<{}> {
                                     <Text style={{ fontWeight: 'bold', color: '#ffeaa7' }}>Ver Items ({this.state.cantidad_items})</Text>
                                 </View>
 
-                                <Text style={{ marginHorizontal: 10, fontWeight: 'bold', color: '#ffeaa7' }}>Total {(this.state.total).toFixed(2)}</Text>
+                                {/* {<Text style={{ marginHorizontal: 10, fontWeight: 'bold', color: '#ffeaa7' }}>Total {(this.state.total).toFixed(2)}</Text>} */}
                             </TouchableOpacity>
                         }
                     </View>
                 </View>
-
+                <Dialog
+                    visible={this.state.OpcionesVisible}
+                    onTouchOutside={() => this.setState({ OpcionesVisible: false })} >
+                    <View>
+                        <TouchableOpacity activeOpacity={0.5} onPress={this.NuevaCuenta}
+                            style={{ marginVertical: 10, backgroundColor: '#fff' }}>
+                            <Text style={{ fontWeight: 'bold', color: 'gray' }}>Crear nueva cuenta</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Dialog>       
 
 
             </View>

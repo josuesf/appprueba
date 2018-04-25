@@ -354,6 +354,7 @@ export default class ProductoDetalle extends Component<{}> {
                 p.Cantidad = this.state.Cantidad
                 p.Cod_Mesa = Cod_Mesa
                 p.PrecioUnitario = this.state.Total / this.state.Cantidad
+                p.Numero =store.getState().Numero_Comprobante
 
                 if (this.state.Opciones.length == 0 && !hay_precios) {
                     p.Id_Pedido = (p.Id_Producto).toString()
