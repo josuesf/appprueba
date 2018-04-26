@@ -21,7 +21,7 @@ import { NavigationActions } from 'react-navigation'
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconFondation from 'react-native-vector-icons/Foundation'
-import { Dialog} from 'react-native-simple-dialogs';
+import { Dialog,ProgressDialog} from 'react-native-simple-dialogs';
 import Producto from '../components/Producto'
 import store from '../store'
 import { URL_WS } from '../Constantes'
@@ -45,7 +45,8 @@ export default class Home extends Component<{}> {
         this.state = {
             categorias_padre: [],
             categorias: [],
-            cantidad_items: 0
+            cantidad_items: 0,
+            productos_todos:[]
         }
     }
     componentWillMount() {
@@ -232,6 +233,13 @@ export default class Home extends Component<{}> {
                         <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
                     </TouchableOpacity>}
                 </View>
+                <ProgressDialog
+                    activityIndicatorColor={"#9b59b6"}
+                    activityIndicatorSize="large"
+                    visible={this.state.buscando}
+                    title="Buscando productos"
+                    message="Por favor, espere..."
+                />
                 {/*<View style={{ backgroundColor: '#40407a' }}>
                     <ScrollView horizontal={true} >
                         {this.state.categorias_padre.map((c, index) =>
@@ -260,9 +268,6 @@ export default class Home extends Component<{}> {
                                 </TouchableOpacity>
                                 {c.Seleccionado == 1 &&
                                     <View>
-                                        {this.state.buscando && <ActivityIndicator color="#333" size="large" style={{ alignSelf: 'center', paddingVertical: 10 }} />
-                                        }
-
                                         <FlatList
                                             data={this.state.productos}
                                             renderItem={({ item }) => (

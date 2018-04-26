@@ -45,7 +45,7 @@ export default class Login extends Component<{}> {
     }
 
     componentWillMount() {
-        if (store.getState().tipo_usuario == 'EMPLEADO' && store.getState().id_usuario) {
+        if (store.getState().tipo_usuario == 'EMPLEADO' && store.getState().id_usuario && store.getState().socket.connected) {
             const vista_mesas = NavigationActions.reset({
                 index: 0,
                 actions: [
