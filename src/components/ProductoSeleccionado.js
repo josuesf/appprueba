@@ -78,15 +78,15 @@ export default class ProductoSeleccionado extends Component {
 
                     <View style={{ flexDirection: 'column', marginHorizontal: 10, }}>
                         <View style={{ alignItems: 'center', flexDirection: 'row' }}>
-                            {this.props.producto.Estado_Pedido =='CONFIRMADO' && <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >({this.state.Cantidad+") "}</Text>}
-                            <Text style={{ color: '#95a5a6', fontWeight: 'bold' }}>{this.props.producto.Nom_Producto}</Text>
+                            {this.props.producto.Estado_Pedido =='CONFIRMA' && <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >({this.state.Cantidad+") "}</Text>}
+                            <Text style={{ color: '#95a5a6', fontWeight: 'bold' ,marginRight:40}}>{this.props.producto.Nom_Producto}</Text>
                             <Text style={{ color: '#95a5a6', fontSize: 0, marginLeft: 2 }}>{moneda + (parseFloat(this.props.producto.PrecioUnitario)).toFixed(2)}</Text>
                         </View>
 
                         {this.state.producto_detalles.map((p, index) => <Text key={index} style={{ color: '#95a5a6', fontSize: 12 }} >{p.Cantidad + " " + p.Nom_Producto + " S./" + p.PrecioUnitario.toFixed(2)}</Text>)}
 
 
-                        {this.props.producto.Estado_Pedido !='CONFIRMADO' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {this.props.producto.Estado_Pedido !='CONFIRMA' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             {parseInt(this.props.producto.Cantidad) > 1 &&
                                 <TouchableOpacity onPress={() => this.RestarProducto()} style={{ marginRight: 10 }}>
                                     <IconMaterial color={"#ef6d13"} name='minus-box-outline' size={30} />

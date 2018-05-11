@@ -37,13 +37,13 @@ export default class Pedido extends Component<{}> {
             headerStyle: {
                 backgroundColor: '#FF5733',
             },
-            // headerRight: (
-            //     store.getState().tipo_usuario == 'EMPLEADO' &&
-            //     <TouchableOpacity onPress={params.AbrirOpciones} style={{ paddingHorizontal: 10 }}>
-            //         <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
-            //     </TouchableOpacity>
+            headerRight: (
+                store.getState().tipo_usuario == 'EMPLEADO' &&
+                <TouchableOpacity onPress={params.AbrirOpciones} style={{ paddingHorizontal: 10 }}>
+                    <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
+                </TouchableOpacity>
 
-            // ),
+            ),
 
         }
     }
@@ -85,13 +85,13 @@ export default class Pedido extends Component<{}> {
     HacerPedido = () => {
         this.setState({ cargando: true })
         Producto = this.state.productos.filter(p => {
-            if (p.Estado_Pedido != 'CONFIRMADO')
+            if (p.Estado_Pedido != 'CONFIRMA')
                 return p
             else
                 return null
         })
         Producto_Detalles = store.getState().producto_detalles.filter(p => {
-            if ((p.Cod_Mesa == store.getState().Cod_Mesa && p.Estado_Pedido != 'CONFIRMADO')) {
+            if ((p.Cod_Mesa == store.getState().Cod_Mesa && p.Estado_Pedido != 'CONFIRMA')) {
                 return p
             } else {
                 return null
@@ -146,16 +146,16 @@ export default class Pedido extends Component<{}> {
     ConfirmarPedido = () => {
         this.setState({ cargando: true })
         Producto = this.state.productos.filter(p => {
-            if (p.Estado_Pedido != 'CONFIRMADO') {
-                p.Estado_Pedido = 'CONFIRMADO'
+            if (p.Estado_Pedido != 'CONFIRMA') {
+                p.Estado_Pedido = 'CONFIRMA'
                 return p
             }
             else
                 return null
         })
         Producto_Detalles = store.getState().producto_detalles.filter(p => {
-            if ((p.Cod_Mesa == store.getState().Cod_Mesa && p.Estado_Pedido != 'CONFIRMADO')) {
-                p.Estado_Pedido = 'CONFIRMADO'
+            if ((p.Cod_Mesa == store.getState().Cod_Mesa && p.Estado_Pedido != 'CONFIRMA')) {
+                p.Estado_Pedido = 'CONFIRMA'
                 return p
             } else {
                 return null
@@ -174,7 +174,7 @@ export default class Pedido extends Component<{}> {
                 Cod_Moneda: this.state.productos[0].Cod_Moneda,
                 Numero: this.state.Numero_Comprobante,
                 Nom_Cliente: this.state.Nom_Cliente,
-                Total: this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
+                Total: this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0)+ Producto_Detalles.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
                 Cod_Vendedor: store.getState().id_usuario,
                 Estado_Mesa: 'OCUPADO',
             })
@@ -187,7 +187,7 @@ export default class Pedido extends Component<{}> {
                         Numero_Comprobante: data.Numero,
                         productos: this.state.productos.filter(p => {
                             p.Numero = data.Numero
-                            p.Estado_Pedido = 'CONFIRMADO'
+                            p.Estado_Pedido = 'CONFIRMA'
                             return p
                         }),
                         cargando: false
@@ -198,7 +198,7 @@ export default class Pedido extends Component<{}> {
 
                     })
                     if (this.state.Numero_Comprobante == "") {
-                        
+
                         store.dispatch({
                             type: 'ADD_ESTADO_MESA',
                             Estado_Mesa: 'OCUPADO'
@@ -206,12 +206,53 @@ export default class Pedido extends Component<{}> {
                         })
                     }
                     //Guardar Numero
-                    Alert.alert('Gracias!', 'Tu pedido esta en cola')
+                    // Alert.alert('Gracias!', 'Tu pedido esta en cola')
+                    const vista_mesas = NavigationActions.reset({
+                        index: 0,
+                        actions: [
+                            NavigationActions.navigate({ routeName: 'mesas' })
+                        ]
+                    })
+                    this.props.navigation.dispatch(vista_mesas)
                 } else {
                     Alert.alert('Sucedio algo!', 'Vuelve a intentarlo o nuestro vendra a ayudarlo')
                 }
             })
     }
+    ImprimirNotaVenta = () => {
+        this.setState({ cargando: true })
+        Producto = this.state.productos.filter(p => p.Estado_Pedido == 'CONFIRMA')
+        Producto_Detalles = store.getState().producto_detalles.filter(p => (p.Cod_Mesa == store.getState().Cod_Mesa && p.Estado_Pedido == 'CONFIRMA' && p.Numero==this.state.Numero_Comprobante))
+        const parametros = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                Cod_Mesa: store.getState().Cod_Mesa,
+                Productos: Producto.concat(Producto_Detalles),
+                Cod_Moneda: this.state.productos[0].Cod_Moneda,
+                Numero: this.state.Numero_Comprobante,
+                Nom_Cliente: this.state.Nom_Cliente,
+                Total: this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0) + Producto_Detalles.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
+                Cod_Vendedor: store.getState().id_usuario,
+                Estado_Mesa: 'OCUPADO',
+            })
+        }
+        fetch(URL_WS + '/impresion_nota_venta', parametros)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.respuesta == 'ok') {
+                    Alert.alert('Impresion!', 'Se imprimio correctamente')
+                }
+                this.setState({
+                    cargando: false,
+                    OpcionesVisible: false
+                })
+            })
+    }
+
     LiberarMesa = () => {
         this.setState({ cargando: true })
         const parametros = {
@@ -282,7 +323,7 @@ export default class Pedido extends Component<{}> {
             })
     }
     CalcularTotal = (productos) => {
-        this.setState({ total: productos.reduce((a, b) => a + (b.Estado_Pedido != 'CONFIRMADO' ? b.PrecioUnitario * b.Cantidad : 0), 0) })
+        this.setState({ total: productos.reduce((a, b) => a + (b.Estado_Pedido != 'CONFIRMA' ? b.PrecioUnitario * b.Cantidad : 0), 0) })
 
     }
     render() {
@@ -300,14 +341,14 @@ export default class Pedido extends Component<{}> {
                     keyExtractor={(item, index) => index}
                 />
                 {store.getState().tipo_usuario != 'EMPLEADO'
-                    && this.state.productos.filter(p => p.Estado_Pedido != 'CONFIRMADO').length > 0
+                    && this.state.productos.filter(p => p.Estado_Pedido != 'CONFIRMA').length > 0
                     && this.state.productos.length > 0 &&
                     <TouchableOpacity activeOpacity={0.5} onPress={this.HacerPedido}
                         style={{ height: 50, borderRadius: 5, marginHorizontal: 10, marginVertical: 10, backgroundColor: '#00b894', justifyContent: 'center' }}>
                         <Text style={{ fontWeight: 'bold', color: '#FFF', alignSelf: 'center' }}>HACER PEDIDO S/.{this.state.total.toFixed(2)}</Text>
                     </TouchableOpacity>}
                 {store.getState().tipo_usuario == 'EMPLEADO'
-                    && this.state.productos.filter(p => p.Estado_Pedido != 'CONFIRMADO').length > 0 &&
+                    && this.state.productos.filter(p => p.Estado_Pedido != 'CONFIRMA').length > 0 &&
                     <TouchableOpacity activeOpacity={0.5} onPress={this.ConfirmarPedido}
                         style={{ height: 50, borderRadius: 5, marginHorizontal: 10, marginVertical: 10, backgroundColor: '#ff7675', justifyContent: 'center' }}>
                         <Text style={{ fontWeight: 'bold', color: '#FFF', alignSelf: 'center' }}>CONFIRMAR PEDIDO {/*'S/.'+this.state.total.toFixed(2)*/}</Text>
@@ -320,6 +361,10 @@ export default class Pedido extends Component<{}> {
                     visible={this.state.OpcionesVisible}
                     onTouchOutside={() => this.setState({ OpcionesVisible: false })} >
                     <View>
+                        <TouchableOpacity activeOpacity={0.5} onPress={this.ImprimirNotaVenta}
+                            style={{ marginVertical: 10, backgroundColor: '#fff' }}>
+                            <Text style={{ fontWeight: 'bold', color: 'gray' }}>IMPRIMIR NOTA DE VENTA</Text>
+                        </TouchableOpacity>
                         <TouchableOpacity activeOpacity={0.5} onPress={this.LiberarMesa}
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>TERMINAR PEDIDO Y LIBERAR MESA</Text>

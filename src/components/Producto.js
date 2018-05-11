@@ -26,7 +26,7 @@ export default class Producto extends Component {
             console.log(producto)
             var Id_Detalle = producto.Id_Producto
             var found = store.getState().productos.find(p => {
-                return (p.Id_Detalle == Id_Detalle && p.Estado_Pedido == 'CONFIRMADO');
+                return (p.Id_Detalle == Id_Detalle && p.Estado_Pedido == 'CONFIRMA');
             });
             if (found) {
                 p = {
@@ -64,7 +64,7 @@ export default class Producto extends Component {
         p.Numero =store.getState().Numero_Comprobante
         // var Id_Detalle = p.Id_Producto
         // var found = store.getState().productos.find(p => {
-        //     return (p.Id_Detalle == Id_Detalle && p.Estado_Pedido == 'CONFIRMADO');
+        //     return (p.Id_Detalle == Id_Detalle && p.Estado_Pedido == 'CONFIRMA');
         // });
         // p.Id_Detalle = found ? parseInt(p.Id_Producto + '' + store.getState().Nro_Pedido) + 1 : Id_Detalle
         this.setState({
@@ -93,7 +93,7 @@ export default class Producto extends Component {
     }
     componentWillMount() {
         var found = store.getState().productos.find(p => {
-            return (p.Estado_Pedido != 'CONFIRMADO' && p.Id_Producto == this.props.producto.Id_Producto && p.Cod_Mesa == this.props.Cod_Mesa);
+            return (p.Estado_Pedido != 'CONFIRMA' && p.Id_Producto == this.props.producto.Id_Producto && p.Cod_Mesa == this.props.Cod_Mesa);
         });
         if (found) {
             this.setState({ Cantidad: parseInt(found.Cantidad) })
@@ -118,7 +118,7 @@ export default class Producto extends Component {
                     })
                 }
                 if ((store.getState().last_event == 'ADD_NUMERO_COMPROBANTE')) {
-                    if (this.props.producto.Estado_Pedido == 'CONFIRMADO')
+                    if (this.props.producto.Estado_Pedido == 'CONFIRMA')
                         this.setState({
                             Cantidad: 0
                         })
