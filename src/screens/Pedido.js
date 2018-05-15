@@ -174,7 +174,7 @@ export default class Pedido extends Component<{}> {
                 Cod_Moneda: this.state.productos[0].Cod_Moneda,
                 Numero: this.state.Numero_Comprobante,
                 Nom_Cliente: this.state.Nom_Cliente,
-                Total: this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0)+ Producto_Detalles.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
+                Total: this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),//+ Producto_Detalles.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
                 Cod_Vendedor: store.getState().id_usuario,
                 Estado_Mesa: 'OCUPADO',
             })
@@ -235,7 +235,7 @@ export default class Pedido extends Component<{}> {
                 Cod_Moneda: this.state.productos[0].Cod_Moneda,
                 Numero: this.state.Numero_Comprobante,
                 Nom_Cliente: this.state.Nom_Cliente,
-                Total: this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0) + Producto_Detalles.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
+                Total: this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0), //+ Producto_Detalles.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
                 Cod_Vendedor: store.getState().id_usuario,
                 Estado_Mesa: 'OCUPADO',
             })
@@ -365,14 +365,14 @@ export default class Pedido extends Component<{}> {
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>IMPRIMIR NOTA DE VENTA</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity activeOpacity={0.5} onPress={this.LiberarMesa}
+                        {/* <TouchableOpacity activeOpacity={0.5} onPress={this.LiberarMesa}
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>TERMINAR PEDIDO Y LIBERAR MESA</Text>
                         </TouchableOpacity>
                         <TouchableOpacity activeOpacity={0.5} onPress={this.CancelarPedido}
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>CANCELAR PEDIDO</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
                 </Dialog>
                 <ProgressDialog

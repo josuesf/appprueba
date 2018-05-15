@@ -150,7 +150,7 @@ export default class ProductoDetalle extends Component<{}> {
                                 && <Text style={{ color: '#95a5a6', fontWeight: 'bold' }}>{opc.Cod_TipoDetalle + (opc.CantidadMax_Grupo > 2 ? ". Maximo " + opc.CantidadMax_Grupo : "")}</Text>}
                             {opc.Error == true && <Text style={{ color: 'red', fontSize: 10 }}>Este campo es obligatorio</Text>}
                             {opc.CantidadMax_Grupo == 0 &&
-                                <RadioButton onPress={() => this.SeleccionarRadioButton(opc.Id_Producto, opc.Cod_TipoDetalle)}
+                                <RadioButton onPress={() => this.SeleccionarRadioButton(opc.Item_Detalle, opc.Cod_TipoDetalle)}
                                     style={{ padding: 5 }}
                                     colorInactive={"#95a5a6"}
                                     value={opc.Seleccionado || false}
@@ -159,7 +159,7 @@ export default class ProductoDetalle extends Component<{}> {
                                     colorActive={'#ef6d13'}
                                     textStyle={{ color: '#95a5a6' }} />}
                             {opc.CantidadMax_Grupo == 1 &&
-                                <CheckBox onPress={() => this.SeleccionarCheck(opc.Id_Producto)}
+                                <CheckBox onPress={() => this.SeleccionarCheck(opc.Item_Detalle)}
                                     style={{ padding: 5 }}
                                     colorInactive={"#95a5a6"}
                                     value={opc.Seleccionado || false}
@@ -170,8 +170,8 @@ export default class ProductoDetalle extends Component<{}> {
                             }
                             {opc.CantidadMax_Grupo > 1 &&
                                 <MultipleBox
-                                    OnPressAgregarProducto={() => this.OnPressAgregarProducto(opc.Id_Producto, opc.Cod_TipoDetalle)}
-                                    OnPresRestarProducto={() => this.OnPresRestarProducto(opc.Id_Producto, opc.Cod_TipoDetalle)}
+                                    OnPressAgregarProducto={() => this.OnPressAgregarProducto(opc.Item_Detalle, opc.Cod_TipoDetalle)}
+                                    OnPresRestarProducto={() => this.OnPresRestarProducto(opc.Item_Detalle, opc.Cod_TipoDetalle)}
                                     style={{ padding: 5 }}
                                     colorIcon={"#ef6d13"}
                                     textValue={opc.Nom_Producto}
@@ -207,14 +207,14 @@ export default class ProductoDetalle extends Component<{}> {
             </View>
         );
     }
-    OnPressAgregarProducto = (Id_Producto, Cod_TipoDetalle) => {
+    OnPressAgregarProducto = (Item_Detalle, Cod_TipoDetalle) => {
         var { producto, Cod_Mesa } = this.props.navigation.state.params
         const hay_precios = this.state.precios.length > 0
         Opciones = this.state.Opciones
         Cantidad_Actual = Opciones.reduce((a, b) => a + ((b.Cantidad && b.Cod_TipoDetalle == Cod_TipoDetalle) ? b.Cantidad : 0), 0)
         this.setState({
             Opciones: Opciones.filter(v => {
-                if (v.Id_Producto == Id_Producto && Cantidad_Actual < v.CantidadMax_Grupo) {
+                if (v.Item_Detalle == Item_Detalle && Cantidad_Actual < v.CantidadMax_Grupo) {
                     v.Seleccionado = true
                     v.Cantidad = (!v.Cantidad ? 0 : v.Cantidad) + 1
                 }
@@ -225,13 +225,13 @@ export default class ProductoDetalle extends Component<{}> {
                 this.state.Opciones.reduce((a, b) => a + (b.Seleccionado ? (b.Cantidad * b.PrecioUnitario) : 0), 0))
         }))
     }
-    OnPresRestarProducto = (Id_Producto) => {
+    OnPresRestarProducto = (Item_Detalle) => {
         var { producto, Cod_Mesa } = this.props.navigation.state.params
         const hay_precios = this.state.precios.length > 0
         Opciones = this.state.Opciones
         this.setState({
             Opciones: Opciones.filter(v => {
-                if (v.Id_Producto == Id_Producto) {
+                if (v.Item_Detalle == Item_Detalle) {
                     v.Cantidad = v.Cantidad - 1
                 }
                 return v
@@ -241,13 +241,13 @@ export default class ProductoDetalle extends Component<{}> {
                 this.state.Opciones.reduce((a, b) => a + (b.Seleccionado ? (b.Cantidad * b.PrecioUnitario) : 0), 0))
         }))
     }
-    SeleccionarCheck = (Id_Producto) => {
+    SeleccionarCheck = (Item_Detalle) => {
         var { producto, Cod_Mesa } = this.props.navigation.state.params
         const hay_precios = this.state.precios.length > 0
         Opciones = this.state.Opciones
         this.setState({
             Opciones: Opciones.filter(v => {
-                if (v.Id_Producto == Id_Producto) {
+                if (v.Item_Detalle == Item_Detalle) {
                     v.Seleccionado = !v.Seleccionado
                     v.Cantidad = v.Seleccionado ? 1 : 0
                 }
@@ -258,18 +258,18 @@ export default class ProductoDetalle extends Component<{}> {
                 this.state.Opciones.reduce((a, b) => a + (b.Seleccionado ? (b.Cantidad * b.PrecioUnitario) : 0), 0))
         }))
     }
-    SeleccionarRadioButton = (Id_Producto, Cod_TipoDetalle) => {
+    SeleccionarRadioButton = (Item_Detalle, Cod_TipoDetalle) => {
         var { producto, Cod_Mesa } = this.props.navigation.state.params
         const hay_precios = this.state.precios.length > 0
         Opciones = this.state.Opciones
         this.setState({ Opciones: [] }, () => {
             this.setState({
                 Opciones: Opciones.filter(v => {
-                    if (v.Id_Producto == Id_Producto && v.Cod_TipoDetalle == Cod_TipoDetalle) {
+                    if (v.Item_Detalle == Item_Detalle && v.Cod_TipoDetalle == Cod_TipoDetalle) {
                         v.Seleccionado = true
                         v.Cantidad = 1
                     }
-                    else if (v.Id_Producto != Id_Producto && v.Cod_TipoDetalle == Cod_TipoDetalle) {
+                    else if (v.Item_Detalle != Item_Detalle && v.Cod_TipoDetalle == Cod_TipoDetalle) {
                         v.Seleccionado = false
                         v.Cantidad = 0
                     }
