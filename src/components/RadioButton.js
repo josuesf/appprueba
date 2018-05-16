@@ -15,7 +15,7 @@ export default RadioButton = (props) => (
                 color={props.value ? props.colorActive : props.colorInactive} />
             <Text style={props.textStyle} >{props.textValue}</Text>
         </View>
-        <Text style={props.textStyle} >{props.textPrecio}</Text>
+        {parseFloat(props.textPrecio)>0 && <Text style={props.textStyle} >{props.textPrecio}</Text>}
 
     </TouchableOpacity>
 )

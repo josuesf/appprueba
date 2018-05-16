@@ -17,6 +17,7 @@ import {
     TouchableOpacity,
     Alert,
     ActivityIndicator,
+    ScrollView,
 } from 'react-native';
 import { NavigationActions } from 'react-navigation'
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -126,7 +127,7 @@ export default class ProductoDetalle extends Component<{}> {
         const { producto, Cod_Mesa } = this.props.navigation.state.params
         return (
             <View ref='ref_pedido' style={styles.container}>
-                <View style={{ padding: 5 }}>
+                <ScrollView style={{ padding: 5 }}>
                     <Text style={{ color: '#57606f', fontWeight: "bold", marginVertical: 10 }} >{producto.Nom_Producto}</Text>
                     {this.state.buscando && <ActivityIndicator color="#333" size="large" style={{ alignSelf: 'center', paddingVertical: 10 }} />}
                     {this.state.precios.length > 0 &&
@@ -148,7 +149,7 @@ export default class ProductoDetalle extends Component<{}> {
                         <View key={index}>
                             {(!this.state.Opciones[index - 1] || (this.state.Opciones[index - 1] && opc.Cod_TipoDetalle != this.state.Opciones[index - 1].Cod_TipoDetalle))
                                 && <Text style={{ color: '#95a5a6', fontWeight: 'bold' }}>{opc.Cod_TipoDetalle + (opc.CantidadMax_Grupo > 2 ? ". Maximo " + opc.CantidadMax_Grupo : "")}</Text>}
-                            {opc.Error == true && <Text style={{ color: 'red', fontSize: 10 }}>Este campo es obligatorio</Text>}
+                            {opc.Error == true && <Text style={{ color: 'red', fontSize: 10 }}>{opc.ErrorMensaje}</Text>}
                             {opc.CantidadMax_Grupo == 0 &&
                                 <RadioButton onPress={() => this.SeleccionarRadioButton(opc.Item_Detalle, opc.Cod_TipoDetalle)}
                                     style={{ padding: 5 }}
@@ -192,7 +193,7 @@ export default class ProductoDetalle extends Component<{}> {
                             <IconMaterial color={"#55efc4"} name='plus-box-outline' size={30} />
                         </TouchableOpacity>
                     </View>
-                </View>
+                </ScrollView>
                 {this.state.Cantidad > 0 &&
                     <TouchableOpacity activeOpacity={0.9}
                         style={{
@@ -338,10 +339,12 @@ export default class ProductoDetalle extends Component<{}> {
                 if (Opciones[i + 1]) {
                     if (Opciones[i + 1].Cod_TipoDetalle != o.Cod_TipoDetalle) {
                         o.Error = (cantidad_sel < o.ValorMinimo)
+                        o.ErrorMensaje = (cantidad_sel < o.ValorMinimo)?'Seleccione minimo '+o.ValorMinimo:''
                         cantidad_sel = 0
                     }
                 } else {
                     o.Error = cantidad_sel < o.ValorMinimo
+                    o.ErrorMensaje = (cantidad_sel < o.ValorMinimo)?'Seleccione minimo '+o.ValorMinimo:''
                     cantidad_sel = 0
                 }
 

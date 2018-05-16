@@ -23,7 +23,7 @@ export default MultipleBox = (props) => (
 
             <Text style={[{ marginLeft: 5 }, props.textStyle]} >{props.textValue}</Text>
         </View>
-        <Text style={props.textStyle} >{props.textPrecio}</Text>
+        {parseFloat(props.textPrecio)>0 && <Text style={props.textStyle} >{props.textPrecio}</Text>}
         
 
 
