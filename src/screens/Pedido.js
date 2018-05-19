@@ -26,7 +26,7 @@ import ProductoSeleccionado from '../components/ProductoSeleccionado'
 import { URL_WS } from '../Constantes'
 import store from '../store'
 import { Dialog, ProgressDialog } from 'react-native-simple-dialogs';
-
+import BusquedaDoc from '../components/BusquedaDoc'
 export default class Pedido extends Component<{}> {
     static navigationOptions = ({ navigation }) => {
         const params = navigation.state.params || {};
@@ -360,10 +360,15 @@ export default class Pedido extends Component<{}> {
                 <Dialog
                     visible={this.state.OpcionesVisible}
                     onTouchOutside={() => this.setState({ OpcionesVisible: false })} >
+                    {this.state.productos.filter(p => p.Estado_Pedido == 'CONFIRMA').length > 0 &&
                     <View>
                         <TouchableOpacity activeOpacity={0.5} onPress={this.ImprimirNotaVenta}
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>IMPRIMIR NOTA DE VENTA</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity activeOpacity={0.5} onPress={()=>this.setState({DialogAsignarNombre:true})}
+                            style={{ marginVertical: 10, backgroundColor: '#fff' }}>
+                            <Text style={{ fontWeight: 'bold', color: 'gray' }}>ASIGNAR NOMBRE(Factura)</Text>
                         </TouchableOpacity>
                         {/* <TouchableOpacity activeOpacity={0.5} onPress={this.LiberarMesa}
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
@@ -373,7 +378,12 @@ export default class Pedido extends Component<{}> {
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>CANCELAR PEDIDO</Text>
                         </TouchableOpacity> */}
-                    </View>
+                    </View>}
+                </Dialog>
+                <Dialog
+                visible={this.state.DialogAsignarNombre}
+                onTouchOutside={() => this.setState({ DialogAsignarNombre: false })}>
+                    <BusquedaDoc/>
                 </Dialog>
                 <ProgressDialog
                     activityIndicatorColor={"#9b59b6"}

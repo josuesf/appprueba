@@ -72,7 +72,9 @@ export default class Mesas extends Component<{}> {
             .then((response) => response.json())
             .then((data) => {
                 console.log(data)
-                this.setState({ conectando: false, mesas: data.mesas })
+                
+                console.log(data.mesas.find(p=>p.Cod_Mesa=='DEV'))
+                this.setState({ conectando: false, mesas: data.mesas.filter(m=>m.Cod_Mesa!='DEV'),mesa_dev:data.mesas.find(p=>p.Cod_Mesa=='DEV') })
             })
     }
     SeleccionarMesa = (Cod_Mesa, Nom_Mesa, Estado_Mesa) => {
@@ -201,6 +203,8 @@ export default class Mesas extends Component<{}> {
                             </View>
                         </Camera>
                     </View> ffb142 ff5252*/}
+                    <Mesa width_state={this.state.Width_Layout} height_state={this.state.Height_Layout} mesa={this.state.mesa_dev}
+                SeleccionarMesa={() => this.SeleccionarMesa(this.state.mesa_dev.Cod_Mesa, this.state.mesa_dev.Nom_Mesa, this.state.mesa_dev.Estado_Mesa)} />
                     <FlatList
                         style={{ marginBottom: 20 }}
                         data={this.state.mesas}
