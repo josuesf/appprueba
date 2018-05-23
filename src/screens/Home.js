@@ -198,6 +198,7 @@ export default class Home extends Component<{}> {
         fetch(URL_WS + '/get_productos_todos', parametros)
             .then((response) => response.json())
             .then((data) => {
+                console.log(data)
                 this.setState({ productos_todos: data.productos, buscando: false })
             })
     }

@@ -51,10 +51,10 @@ export default class Mesas extends Component<{}> {
         /*if(store.getState().socket.connected){
             this.BuscarProductos()
         }*/
-        //this.BuscarMesas()
+        this.BuscarMesas()
     }
     componentDidMount() {
-        this.BuscarMesas()
+        // this.BuscarMesas()
     }
     BuscarMesas = () => {
 
@@ -203,8 +203,8 @@ export default class Mesas extends Component<{}> {
                             </View>
                         </Camera>
                     </View> ffb142 ff5252*/}
-                    <Mesa width_state={this.state.Width_Layout} height_state={this.state.Height_Layout} mesa={this.state.mesa_dev}
-                SeleccionarMesa={() => this.SeleccionarMesa(this.state.mesa_dev.Cod_Mesa, this.state.mesa_dev.Nom_Mesa, this.state.mesa_dev.Estado_Mesa)} />
+                    {this.state.mesa_dev && <Mesa width_state={this.state.Width_Layout} height_state={this.state.Height_Layout} mesa={this.state.mesa_dev}
+                SeleccionarMesa={() => this.SeleccionarMesa(this.state.mesa_dev.Cod_Mesa, this.state.mesa_dev.Nom_Mesa, this.state.mesa_dev.Estado_Mesa)} />}
                     <FlatList
                         style={{ marginBottom: 20 }}
                         data={this.state.mesas}
