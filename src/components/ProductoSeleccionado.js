@@ -15,7 +15,7 @@ import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import { URL_WS } from '../Constantes';
 import store from '../store'
 import { ConfirmDialog } from 'react-native-simple-dialogs';
-
+import CheckBox from '../components/CheckBox'
 
 const { width, height } = Dimensions.get('window')
 const AVATAR_SIZE = 50
@@ -24,7 +24,8 @@ export default class ProductoSeleccionado extends Component {
         super(props)
         this.state = {
             Cantidad: this.props.producto.Cantidad,
-            producto_detalles: store.getState().producto_detalles.filter(p => p.Id_Referencia == this.props.producto.Id_Detalle)
+            producto_detalles: store.getState().producto_detalles.filter(p => p.Id_Referencia == this.props.producto.Id_Detalle),
+            para_llevar: this.props.producto.para_llevar
         }
     }
 
@@ -61,6 +62,19 @@ export default class ProductoSeleccionado extends Component {
         })
         this.setState({ preguntaEliminar: false })
     }
+    SeleccionarCheck = () => {
+        var producto = this.props.producto
+        producto.para_llevar = !this.state.para_llevar
+        this.setState({ para_llevar: !this.state.para_llevar },
+            // () => {
+            //     store.dispatch({
+            //         type: 'PARA_LLEVAR_PRODUCTO',
+            //         producto:producto,
+            //     })
+            // }
+        )
+
+    }
     render() {
         const moneda = 'S/. '
         const { producto_detalles } = this.state
@@ -78,15 +92,15 @@ export default class ProductoSeleccionado extends Component {
 
                     <View style={{ flexDirection: 'column', marginHorizontal: 10, }}>
                         <View style={{ alignItems: 'center', flexDirection: 'row' }}>
-                            {this.props.producto.Estado_Pedido =='CONFIRMA' && <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >({this.state.Cantidad+") "}</Text>}
-                            <Text style={{ color: '#95a5a6', fontWeight: 'bold' ,marginRight:40}}>{this.props.producto.Nom_Producto}</Text>
+                            {this.props.producto.Estado_Pedido == 'CONFIRMA' && <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >({this.state.Cantidad + ") "}</Text>}
+                            <Text style={{ color: '#95a5a6', fontWeight: 'bold', marginRight: 40 }}>{this.props.producto.Nom_Producto}</Text>
                             <Text style={{ color: '#95a5a6', fontSize: 0, marginLeft: 2 }}>{moneda + (parseFloat(this.props.producto.PrecioUnitario)).toFixed(2)}</Text>
                         </View>
 
                         {this.state.producto_detalles.map((p, index) => <Text key={index} style={{ color: '#95a5a6', fontSize: 12 }} >{p.Cantidad + " " + p.Nom_Producto + " S./" + p.PrecioUnitario.toFixed(2)}</Text>)}
 
 
-                        {this.props.producto.Estado_Pedido !='CONFIRMA' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {this.props.producto.Estado_Pedido != 'CONFIRMA' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             {parseInt(this.props.producto.Cantidad) > 1 &&
                                 <TouchableOpacity onPress={() => this.RestarProducto()} style={{ marginRight: 10 }}>
                                     <IconMaterial color={"#ef6d13"} name='minus-box-outline' size={30} />
@@ -100,6 +114,14 @@ export default class ProductoSeleccionado extends Component {
                             <TouchableOpacity onPress={() => this.setState({ preguntaEliminar: true })} style={{ marginLeft: 10 }}>
                                 <IconMaterial color="#95a5a6" name='delete' size={30} />
                             </TouchableOpacity>
+                            <CheckBox onPress={() => this.SeleccionarCheck()}
+                                style={{ padding: 5 }}
+                                colorInactive={"#95a5a6"}
+                                value={this.state.para_llevar}
+                                textValue={"Para llevar"}
+                                textPrecio={""}
+                                colorActive={'#ef6d13'}
+                                textStyle={{ color: '#95a5a6' }} />
                         </View>}
                     </View>
 

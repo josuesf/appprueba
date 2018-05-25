@@ -198,7 +198,6 @@ export default class Home extends Component<{}> {
         fetch(URL_WS + '/get_productos_todos', parametros)
             .then((response) => response.json())
             .then((data) => {
-                console.log(data)
                 this.setState({ productos_todos: data.productos, buscando: false })
             })
     }
@@ -227,7 +226,7 @@ export default class Home extends Component<{}> {
                     </TouchableOpacity>
                     <View style={{flex: 1, marginHorizontal: 10}}>
                         <Text style={{ color: '#ffeaa7', fontWeight: 'bold' }}>{store.getState().Nom_Mesa}</Text>
-                        <Text style={{ color: '#ffeaa7' }}>Cuenta {store.getState().Numero_Comprobante}</Text>
+                        <Text style={{ color: '#ffeaa7' }}>Cuenta {store.getState().Numero_Cuenta}</Text>
                     </View>
                     {store.getState().Numero_Comprobante!='' &&
                     <TouchableOpacity onPress={()=>this.setState({OpcionesVisible:true})} style={{ paddingHorizontal: 10 }}>

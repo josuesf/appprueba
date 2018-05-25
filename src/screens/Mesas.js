@@ -18,6 +18,7 @@ import {
     ActivityIndicator,
     FlatList,
     Alert,
+    Image,
 } from 'react-native';
 import { NavigationActions } from 'react-navigation'
 import WifiManager from 'react-native-wifi-manager'
@@ -43,10 +44,10 @@ export default class Mesas extends Component<{}> {
             OrientationStatus: '',
             Height_Layout: '',
             Width_Layout: '',
-            cuentas_mesa:[]
+            cuentas_mesa:[],
+            refreshing: false,
         }
     }
-
     componentWillMount() {
         /*if(store.getState().socket.connected){
             this.BuscarProductos()
@@ -57,7 +58,6 @@ export default class Mesas extends Component<{}> {
         // this.BuscarMesas()
     }
     BuscarMesas = () => {
-
         const parametros = {
             method: 'POST',
             headers: {
@@ -72,12 +72,12 @@ export default class Mesas extends Component<{}> {
             .then((response) => response.json())
             .then((data) => {
                 console.log(data)
-                
-                console.log(data.mesas.find(p=>p.Cod_Mesa=='DEV'))
-                this.setState({ conectando: false, mesas: data.mesas.filter(m=>m.Cod_Mesa!='DEV'),mesa_dev:data.mesas.find(p=>p.Cod_Mesa=='DEV') })
+                const mesa_dev =data.mesas.find(p=>p.Cod_Mesa=='DEV')
+                this.setState({ conectando: false, mesas: [mesa_dev,...data.mesas.filter(m=>m.Cod_Mesa!='DEV')] })
             })
     }
     SeleccionarMesa = (Cod_Mesa, Nom_Mesa, Estado_Mesa) => {
+        const productos_mesa_cambio = this.props.navigation.state.params
         this.setState({ entrando_mesa: true })
         const parametros = {
             method: 'POST',
@@ -120,14 +120,21 @@ export default class Mesas extends Component<{}> {
                             store.dispatch({
                                 type: 'ADD_NUMERO_COMPROBANTE',
                                 Numero_Comprobante: data.productos_selec[0].Numero,
+                                Numero_Cuenta:1
                             })
                             this.props.navigation.navigate('main', { productos_selec: data.productos_selec })
                         }else{
                             this.setState({OpcionesVisible:true})
                         }
                     })
-                    
                 } else {
+                    if(productos_mesa_cambio){
+                        store.dispatch({
+                            type: 'CAMBIO_MESA',
+                            mesa_actual:productos_mesa_cambio.Cod_Mesa,
+                            mesa_nueva:Cod_Mesa
+                        })
+                    }
                     store.dispatch({
                         type: 'ADD_NUMERO_COMPROBANTE',
                         Numero_Comprobante: '',
@@ -136,11 +143,12 @@ export default class Mesas extends Component<{}> {
                 }
             })
     }
-    AbrirCuentaMesa(Numero) {
+    AbrirCuentaMesa(Numero,Numero_Cuenta) {
         this.setState({OpcionesVisible:false})
         store.dispatch({
             type: 'ADD_NUMERO_COMPROBANTE',
             Numero_Comprobante: Numero,
+            Numero_Cuenta:Numero_Cuenta
         })
         this.props.navigation.navigate('main',{ productos_selec: [] })
     }
@@ -152,10 +160,8 @@ export default class Mesas extends Component<{}> {
             conectando: true,
             Cod_Mesa: e.data.split(';')[2]
         }, () => this.BuscarProductos());
-
     }
     DetectOrientation() {
-
         if (this.state.Width_Layout > this.state.Height_Layout) {
 
             // Write Your own code here, which you want to execute on Landscape Mode.
@@ -169,7 +175,9 @@ export default class Mesas extends Component<{}> {
                 OrientationStatus: 'Portrait'
             });
         }
-
+    }
+    _onRefresh = () => {
+        this.BuscarMesas()
     }
     render() {
         const { navigate } = this.props.navigation;
@@ -190,8 +198,10 @@ export default class Mesas extends Component<{}> {
                     title="Conectando"
                     message="Por favor, espere..."
                 />
-
                 <View style={{ padding: 10 }}>
+                    <View style={{ marginTop: 20 }}>
+                        <Image source={require('../images/logomisky.png')} style={{height:100,width:100,alignSelf:'center'}} />
+                    </View>
                     <Text style={styles.instructions}>Bienvenido, {store.getState().nombre_usuario}</Text>
                     {this.state.conectando && <ActivityIndicator color='#333' size='large' style={{ alignSelf: 'center', marginVertical: 20 }} />}
                     {/*<View style={styles.rectangleContainer}>
@@ -203,8 +213,6 @@ export default class Mesas extends Component<{}> {
                             </View>
                         </Camera>
                     </View> ffb142 ff5252*/}
-                    {this.state.mesa_dev && <Mesa width_state={this.state.Width_Layout} height_state={this.state.Height_Layout} mesa={this.state.mesa_dev}
-                SeleccionarMesa={() => this.SeleccionarMesa(this.state.mesa_dev.Cod_Mesa, this.state.mesa_dev.Nom_Mesa, this.state.mesa_dev.Estado_Mesa)} />}
                     <FlatList
                         style={{ marginBottom: 20 }}
                         data={this.state.mesas}
@@ -214,28 +222,26 @@ export default class Mesas extends Component<{}> {
                             <Mesa width_state={this.state.Width_Layout} height_state={this.state.Height_Layout} mesa={item}
                                 SeleccionarMesa={() => this.SeleccionarMesa(item.Cod_Mesa, item.Nom_Mesa, item.Estado_Mesa)} />
                         )}
+                        refreshing={this.state.refreshing}
+                        onRefresh={this._onRefresh} 
                     />
-
                 </View>
                 <Dialog
                     visible={this.state.OpcionesVisible}
                     onTouchOutside={() => this.setState({ OpcionesVisible: false })} >
                     <View>
                         {this.state.cuentas_mesa.map((c, i) =>
-                            <TouchableOpacity key={i} activeOpacity={0.5} onPress={() => this.AbrirCuentaMesa(c.Numero)}
+                            <TouchableOpacity key={i} activeOpacity={0.5} onPress={() => this.AbrirCuentaMesa(c.Numero,i+1)}
                                 style={{ marginVertical: 10, backgroundColor: '#fff' }}>
-                                <Text style={{ fontWeight: 'bold', color: 'gray' }}>Cuenta {c.Numero}</Text>
+                                <Text style={{ fontWeight: 'bold', color: 'gray' }}>Cuenta {i+1}</Text>
                             </TouchableOpacity>
                         )}
                     </View>
                 </Dialog>
-
-
             </View>
         );
     }
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,

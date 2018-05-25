@@ -92,6 +92,18 @@ const reducer = (state, action) => {
             tipo_usuario: action.tipo_usuario || state.tipo_usuario
         }
     }
+    if (action.type == "CAMBIO_MESA") {
+        return {
+            ...state,
+            last_event: 'CAMBIO_MESA',
+            productos: state.productos.filter(p => {
+                if (p.Cod_Mesa == action.mesa_actual && p.Numero==state.Numero_Comprobante) {
+                    p.Cod_Mesa = action.mesa_nueva
+                }
+                return p
+            }),
+        }
+    }
     if (action.type == "LOGIN_USUARIO") {
         return {
             ...state,
@@ -114,6 +126,7 @@ const reducer = (state, action) => {
             ...state,
             last_event: 'ADD_NUMERO_COMPROBANTE',
             Numero_Comprobante: action.Numero_Comprobante,
+            Numero_Cuenta:action.Numero_Cuenta
         }
     }
     if (action.type == "ADD_ESTADO_MESA") {
@@ -146,6 +159,7 @@ export default createStore(reducer,
         tipo_usuario: undefined,
         Nom_Mesa: undefined,
         Numero_Comprobante:'',
+        Numero_Cuenta:'',
         Nro_Pedido:1,
         Estado_Mesa:''
     })

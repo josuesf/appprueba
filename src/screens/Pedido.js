@@ -326,6 +326,17 @@ export default class Pedido extends Component<{}> {
         this.setState({ total: productos.reduce((a, b) => a + (b.Estado_Pedido != 'CONFIRMA' ? b.PrecioUnitario * b.Cantidad : 0), 0) })
 
     }
+    CambiarMesa = ()=>{
+        this.setState({ OpcionesVisible: false })
+        const vista_mesas = NavigationActions.reset({
+            index: 0,
+            actions: [
+                NavigationActions.navigate({ routeName: 'mesas',params:{Cod_Mesa:store.getState().Cod_Mesa} })
+            ]
+        })
+        this.props.navigation.dispatch(vista_mesas)
+        // this.props.navigation.navigate('mesas',{Cod_Mesa:store.getState().Cod_Mesa})
+    }
     render() {
         const { navigate } = this.props.navigation;
         return (
@@ -360,13 +371,13 @@ export default class Pedido extends Component<{}> {
                 <Dialog
                     visible={this.state.OpcionesVisible}
                     onTouchOutside={() => this.setState({ OpcionesVisible: false })} >
-                    {this.state.productos.filter(p => p.Estado_Pedido == 'CONFIRMA').length > 0 &&
+                    {this.state.productos.filter(p => p.Estado_Pedido == 'CONFIRMA').length > 0 ?
                     <View>
                         <TouchableOpacity activeOpacity={0.5} onPress={this.ImprimirNotaVenta}
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>IMPRIMIR NOTA DE VENTA</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity activeOpacity={0.5} onPress={()=>this.setState({DialogAsignarNombre:true})}
+                        <TouchableOpacity activeOpacity={0.5} onPress={()=>console.log(this.state.productos)}
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>ASIGNAR NOMBRE(Factura)</Text>
                         </TouchableOpacity>
@@ -378,7 +389,14 @@ export default class Pedido extends Component<{}> {
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>CANCELAR PEDIDO</Text>
                         </TouchableOpacity> */}
-                    </View>}
+                    </View>:
+                    <View>
+                        <TouchableOpacity activeOpacity={0.5} onPress={this.CambiarMesa}
+                            style={{ marginVertical: 10, backgroundColor: '#fff' }}>
+                            <Text style={{ fontWeight: 'bold', color: 'gray' }}>CAMBIO DE MESA</Text>
+                        </TouchableOpacity>
+                    </View>
+                    }
                 </Dialog>
                 <Dialog
                 visible={this.state.DialogAsignarNombre}
