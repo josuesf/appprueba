@@ -146,6 +146,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-background-job')
     compile project(':react-native-wifi-manager')
     compile project(':react-native-vector-icons')
     compile project(':react-native-camera')

@@ -1,4 +1,6 @@
 rootProject.name = 'MiskyApp'
+include ':react-native-background-job'
+project(':react-native-background-job').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-background-job/android')
 include ':react-native-wifi-manager'
 project(':react-native-wifi-manager').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-wifi-manager/android')
 include ':react-native-vector-icons'
