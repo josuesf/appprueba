@@ -30,8 +30,9 @@ import Mesa from '../components/Mesa'
 const { width, height } = Dimensions.get('window')
 export default class Mesas extends Component<{}> {
     static navigationOptions = {
-        header: null,
-        tabBarLabel: 'Mesas',
+        // header: null,
+        title:'Mesas'
+        // tabBarLabel: 'Mesas',
     };
     constructor() {
         super()
@@ -199,9 +200,9 @@ export default class Mesas extends Component<{}> {
                     message="Por favor, espere..."
                 />
                 <View style={{ padding: 10 }}>
-                    <View style={{ marginTop: 20 }}>
+                    {/* <View style={{ marginTop: 20 }}>
                         <Image source={require('../images/logomisky.png')} style={{height:100,width:100,alignSelf:'center'}} />
-                    </View>
+                    </View> */}
                     <Text style={styles.instructions}>Bienvenido, {store.getState().nombre_usuario}</Text>
                     {this.state.conectando && <ActivityIndicator color='#333' size='large' style={{ alignSelf: 'center', marginVertical: 20 }} />}
                     {/*<View style={styles.rectangleContainer}>
@@ -214,7 +215,7 @@ export default class Mesas extends Component<{}> {
                         </Camera>
                     </View> ffb142 ff5252*/}
                     <FlatList
-                        style={{ marginBottom: 20 }}
+                        //style={{ marginBottom: 150 }}
                         data={this.state.mesas}
                         numColumns={4}
                         keyExtractor={(item, index) => index}

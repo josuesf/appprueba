@@ -7,14 +7,15 @@ import {
     TouchableOpacity,
     Dimensions,
     AsyncStorage,
-    Platform
+    Platform,
+    TextInput
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconFA from 'react-native-vector-icons/FontAwesome';
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import { URL_WS } from '../Constantes';
 import store from '../store'
-import { ConfirmDialog } from 'react-native-simple-dialogs';
+import { ConfirmDialog,Dialog } from 'react-native-simple-dialogs';
 import CheckBox from '../components/CheckBox'
 
 const { width, height } = Dimensions.get('window')
@@ -25,7 +26,8 @@ export default class ProductoSeleccionado extends Component {
         this.state = {
             Cantidad: this.props.producto.Cantidad,
             producto_detalles: store.getState().producto_detalles.filter(p => p.Id_Referencia == this.props.producto.Id_Detalle),
-            para_llevar: this.props.producto.para_llevar
+            para_llevar: this.props.producto.para_llevar,
+            notaProducto: false
         }
     }
 
@@ -114,6 +116,9 @@ export default class ProductoSeleccionado extends Component {
                             <TouchableOpacity onPress={() => this.setState({ preguntaEliminar: true })} style={{ marginLeft: 10 }}>
                                 <IconMaterial color="#95a5a6" name='delete' size={30} />
                             </TouchableOpacity>
+                            <TouchableOpacity onPress={() => this.setState({ notaProducto: true })} style={{ marginLeft: 10 }}>
+                                <IconMaterial color="#95a5a6" name='message-text-outline' size={25} />
+                            </TouchableOpacity>
                             <CheckBox onPress={() => this.SeleccionarCheck()}
                                 style={{ padding: 5 }}
                                 colorInactive={"#95a5a6"}
@@ -122,6 +127,7 @@ export default class ProductoSeleccionado extends Component {
                                 textPrecio={""}
                                 colorActive={'#ef6d13'}
                                 textStyle={{ color: '#95a5a6' }} />
+                            
                         </View>}
                     </View>
 
@@ -150,6 +156,16 @@ export default class ProductoSeleccionado extends Component {
                         onPress: () => this.setState({ preguntaEliminar: false })
                     }}
                 />
+                <Dialog 
+                    onRequestClose={() => this.setState({ notaProducto: false })}
+                    onTouchOutside={() => this.setState({ notaProducto: false })}
+                    visible={this.state.notaProducto}>
+                    <Text style={{fontWeight:'bold',fontSize:18}}>Notas extras</Text>
+                    <TextInput numberOfLines={4} multiline={true} placeholder="Ejemplo: Poco aji,etc"/>
+                    <TouchableOpacity style={{backgroundColor:'#000'}}>
+                        <Text style={{color:'white',padding:10,alignSelf:'center',fontWeight:'bold'}}>Guardar</Text>
+                    </TouchableOpacity>
+                </Dialog>
 
             </View>
         );
