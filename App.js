@@ -9,6 +9,7 @@ import Splash from './src/screens/Splash'
 import Login from './src/screens/Login';
 import Mesas from './src/screens/Mesas';
 import ProductoDetalle from './src/screens/ProductoDetalle';
+import DivisionCuenta from './src/screens/DivisionCuenta';
 
 const Main = TabNavigator({
   home: {
@@ -61,6 +62,9 @@ const App = StackNavigator(
     },
     producto_detalle:{
       screen: ProductoDetalle
+    },
+    dividir_cuenta:{
+      screen:DivisionCuenta
     }
   },
   {

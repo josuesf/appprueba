@@ -377,9 +377,17 @@ export default class Pedido extends Component<{}> {
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>IMPRIMIR NOTA DE VENTA</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity activeOpacity={0.5} onPress={()=>console.log(this.state.productos)}
+                        <TouchableOpacity activeOpacity={0.5} onPress={()=>this.setState({DialogAsignarNombre:true})}
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
-                            <Text style={{ fontWeight: 'bold', color: 'gray' }}>ASIGNAR NOMBRE(Factura)</Text>
+                            <Text style={{ fontWeight: 'bold', color: 'gray' }}>ASIGNAR CLIENTE</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity activeOpacity={0.5} onPress={()=>{this.setState({OpcionesVisible:false});navigate('dividir_cuenta')}}
+                            style={{ marginVertical: 10, backgroundColor: '#fff' }}>
+                            <Text style={{ fontWeight: 'bold', color: 'gray' }}>DIVIDIR CUENTA</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity activeOpacity={0.5} onPress={()=>this.setState({DialogAsignarNombre:true})}
+                            style={{ marginVertical: 10, backgroundColor: '#fff' }}>
+                            <Text style={{ fontWeight: 'bold', color: 'gray' }}>FUSIONAR CUENTA</Text>
                         </TouchableOpacity>
                         {/* <TouchableOpacity activeOpacity={0.5} onPress={this.LiberarMesa}
                             style={{ marginVertical: 10, backgroundColor: '#fff' }}>
