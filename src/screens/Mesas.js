@@ -13,8 +13,10 @@ import {
     Vibration,
     ScrollView,
 } from 'react-native';
+import Swiper from 'react-native-swiper'
 
-import {fetchData} from '../utils/fetchData'
+
+import { fetchData } from '../utils/fetchData'
 import Ambiente from '../components/Ambiente';
 export default class Mesas extends Component {
     static navigationOptions = {
@@ -28,17 +30,17 @@ export default class Mesas extends Component {
             'Setting a timer'
         ];
         this.state = {
-            ambientes:[]
+            ambientes: []
         }
     }
     componentWillMount() {
         this.CargarAmbientes()
     }
-    CargarAmbientes =()=>{
-        fetchData('/get_ambientes','POST',{},(res,err)=>{
-            if(err) console.log(err)
+    CargarAmbientes = () => {
+        fetchData('/get_ambientes', 'POST', {}, (res, err) => {
+            if (err) console.log(err)
             this.setState({
-                ambientes:res
+                ambientes: res.respuesta
             })
         })
     }
@@ -51,24 +53,27 @@ export default class Mesas extends Component {
             Cod_Mesa: e.data.split(';')[2]
         }, () => this.BuscarProductos());
     }
-    
+
     render() {
-        
+
         return (
             <View style={styles.container} >
                 <StatusBar
                     backgroundColor="#F9360C"
                     barStyle="default"
                 />
-                <ScrollView
+                {/* <ScrollView
                     horizontal={true}
                     pagingEnabled={true}
-                >
-                    {this.state.ambientes.map(ambiente=>
-                        <Ambiente key={ambiente.Cod_Ambiente} Cod_Ambiente={ambiente.Cod_Ambiente} navigation={this.props.navigation}/>
+                > */}
+                <Swiper dot={<View style={{ backgroundColor: 'rgba(255,255,255,.3)', width: 13, height: 13, borderRadius: 7, marginLeft: 7, marginRight: 7 }} />}
+                    activeDot={<View style={{ backgroundColor: '#fff', width: 13, height: 13, borderRadius: 7, marginLeft: 7, marginRight: 7 }} />} loop={false}>
+                    {this.state.ambientes.map(ambiente =>
+                        <Ambiente key={ambiente.Cod_Ambiente} Cod_Ambiente={ambiente.Cod_Ambiente} navigation={this.props.navigation} />
                     )}
-                </ScrollView>
-                
+                </Swiper>
+                {/* </ScrollView> */}
+
             </View>
         );
     }
@@ -82,7 +87,7 @@ const styles = StyleSheet.create({
         color: 'white',
         marginVertical: 10,
         fontWeight: 'bold',
-        fontSize:18
+        fontSize: 18
     },
     camera: {
         flex: 0,

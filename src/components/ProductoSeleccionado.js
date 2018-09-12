@@ -25,9 +25,10 @@ export default class ProductoSeleccionado extends Component {
         super(props)
         this.state = {
             Cantidad: this.props.producto.Cantidad,
-            producto_detalles: store.getState().producto_detalles.filter(p => p.Id_Referencia == this.props.producto.Id_Detalle),
+            producto_detalles: store.getState().producto_detalles.filter(p => (p.Id_Referencia == this.props.producto.Id_Detalle && (!p.Numero || p.Numero==props.producto.Numero))),
             para_llevar: this.props.producto.para_llevar,
-            notaProducto: false
+            notaProducto: false,
+            Obs_ComprobanteD: props.producto.Obs_ComprobanteD
         }
     }
 
@@ -76,6 +77,10 @@ export default class ProductoSeleccionado extends Component {
             // }
         )
 
+    }
+    GuardarObsComp=()=>{
+        this.props.producto.Obs_ComprobanteD = this.state.Obs_ComprobanteD
+        this.setState({notaProducto:false})
     }
     render() {
         const moneda = 'S/. '
@@ -161,8 +166,12 @@ export default class ProductoSeleccionado extends Component {
                     onTouchOutside={() => this.setState({ notaProducto: false })}
                     visible={this.state.notaProducto}>
                     <Text style={{fontWeight:'bold',fontSize:18}}>Notas extras</Text>
-                    <TextInput numberOfLines={4} multiline={true} placeholder="Ejemplo: Poco aji,etc"/>
-                    <TouchableOpacity style={{backgroundColor:'#000'}}>
+                    <TextInput onChangeText={(text)=>this.setState({Obs_ComprobanteD:text})} 
+                        value={this.state.Obs_ComprobanteD}
+                        numberOfLines={4} multiline={true} placeholder="Ejemplo: Poco aji,etc"/>
+                    <TouchableOpacity 
+                        onPress={this.GuardarObsComp} 
+                        style={{backgroundColor:'#000'}}>
                         <Text style={{color:'white',padding:10,alignSelf:'center',fontWeight:'bold'}}>Guardar</Text>
                     </TouchableOpacity>
                 </Dialog>

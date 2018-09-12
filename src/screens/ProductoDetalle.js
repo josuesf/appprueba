@@ -30,6 +30,7 @@ import store from '../store'
 import CheckBox from '../components/CheckBox'
 import RadioButton from '../components/RadioButton'
 import MultipleBox from '../components/MultipleBox'
+import { fetchData } from '../utils/fetchData'
 
 export default class ProductoDetalle extends Component<{}> {
     static navigationOptions = {
@@ -63,61 +64,40 @@ export default class ProductoDetalle extends Component<{}> {
     RecuperarPrecios = () => {
         const { producto } = this.props.navigation.state.params
         this.setState({ buscando: true })
-        const parametros = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                Id_Producto: producto.Id_Producto
+        fetchData('/get_precios_producto', 'POST', {
+            Id_Producto: producto.Id_Producto
+        }, (data, err) => {
+            precios = data.precios.filter((p, i) => {
+                if (i == 0) p.Seleccionado = true
+                return p
             })
-        }
-        fetch(URL_WS + '/get_precios_producto', parametros)
-            .then((response) => response.json())
-            .then((data) => {
-                precios = data.precios.filter((p, i) => {
-                    if (i == 0) p.Seleccionado = true
-                    return p
-                })
-                this.setState({
-                    precios: precios
-                })
-                this.RecuperarOpcionales()
+            this.setState({
+                precios: precios
             })
+            this.RecuperarOpcionales()
+        })
     }
     RecuperarOpcionales = () => {
         const { producto, Cod_Mesa } = this.props.navigation.state.params
         //this.setState({ buscando: true })
-        const parametros = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                Id_Producto: producto.Id_Producto
-            })
-        }
-        fetch(URL_WS + '/get_detalle_producto', parametros)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.respuesta == 'ok') {
-                    var Opciones = data.productos_detalle
-                    if (Opciones.length == 0 && this.state.precios.length==0) {
-                        var found = store.getState().productos.find(p => {
-                            return (p.Id_Producto == producto.Id_Producto && p.Cod_Mesa == Cod_Mesa);
-                        });
-                        if (found) {
-                            this.setState({ Cantidad: parseInt(found.Cantidad), Total: producto.PrecioUnitario * found.Cantidad, buscando: false })
-                        } else
-                            this.setState({ Total: producto.PrecioUnitario, buscando: false })
-                    } else {
-                        this.setState({ Total: producto.PrecioUnitario, Opciones, buscando: false })
-                    }
+        fetchData('/get_detalle_producto', 'POST', {
+            Id_Producto: producto.Id_Producto
+        }, (data, err) => {
+            if (data.respuesta == 'ok') {
+                var Opciones = data.productos_detalle
+                if (Opciones.length == 0 && this.state.precios.length == 0) {
+                    var found = store.getState().productos.find(p => {
+                        return (p.Id_Producto == producto.Id_Producto && p.Cod_Mesa == Cod_Mesa);
+                    });
+                    if (found) {
+                        this.setState({ Cantidad: parseInt(found.Cantidad), Total: producto.PrecioUnitario * found.Cantidad, buscando: false })
+                    } else
+                        this.setState({ Total: producto.PrecioUnitario, buscando: false })
+                } else {
+                    this.setState({ Total: producto.PrecioUnitario, Opciones, buscando: false })
                 }
-
-            })
+            }
+        })
     }
     componentDidMount() {
     }
@@ -222,7 +202,7 @@ export default class ProductoDetalle extends Component<{}> {
                 return v
             })
         }, () => this.setState({
-            Total: this.state.Cantidad * ( (!hay_precios ? producto.PrecioUnitario : this.state.precios.reduce((a, b) => a + (b.Seleccionado == true ? b.PrecioUnitario : 0), 0)) +
+            Total: this.state.Cantidad * ((!hay_precios ? producto.PrecioUnitario : this.state.precios.reduce((a, b) => a + (b.Seleccionado == true ? b.PrecioUnitario : 0), 0)) +
                 this.state.Opciones.reduce((a, b) => a + (b.Seleccionado ? (b.Cantidad * b.PrecioUnitario) : 0), 0))
         }))
     }
@@ -238,7 +218,7 @@ export default class ProductoDetalle extends Component<{}> {
                 return v
             })
         }, () => this.setState({
-            Total: this.state.Cantidad * ( (!hay_precios ? producto.PrecioUnitario : this.state.precios.reduce((a, b) => a + (b.Seleccionado == true ? b.PrecioUnitario : 0), 0)) +
+            Total: this.state.Cantidad * ((!hay_precios ? producto.PrecioUnitario : this.state.precios.reduce((a, b) => a + (b.Seleccionado == true ? b.PrecioUnitario : 0), 0)) +
                 this.state.Opciones.reduce((a, b) => a + (b.Seleccionado ? (b.Cantidad * b.PrecioUnitario) : 0), 0))
         }))
     }
@@ -278,7 +258,7 @@ export default class ProductoDetalle extends Component<{}> {
                 })
             }, () => this.setState({
                 Total: this.state.Cantidad * ((!hay_precios ? producto.PrecioUnitario : this.state.precios.reduce((a, b) => a + (b.Seleccionado == true ? b.PrecioUnitario : 0), 0)) +
-                     this.state.Opciones.reduce((a, b) => a + (b.Seleccionado ? (b.Cantidad * b.PrecioUnitario) : 0), 0))
+                    this.state.Opciones.reduce((a, b) => a + (b.Seleccionado ? (b.Cantidad * b.PrecioUnitario) : 0), 0))
             }))
         })
     }
@@ -321,10 +301,10 @@ export default class ProductoDetalle extends Component<{}> {
             Nom_Marca: producto.Nom_Marca,
             Nom_Moneda: producto.Nom_Moneda,
             Nom_Precio: producto.Nom_Precio,
-            Nom_Producto: producto.Nom_Producto+Nom_Precio,
+            Nom_Producto: producto.Nom_Producto + Nom_Precio,
             PrecioUnitario: producto.PrecioUnitario,
             Simbolo: producto.Simbolo,
-            Estado_Pedido : 'PENDIENTE'
+            Estado_Pedido: 'PENDIENTE'
         }
         // p=producto
         //console.log(store.getState().productos[0].Id_Pedido)
@@ -339,12 +319,12 @@ export default class ProductoDetalle extends Component<{}> {
                 if (Opciones[i + 1]) {
                     if (Opciones[i + 1].Cod_TipoDetalle != o.Cod_TipoDetalle) {
                         o.Error = (cantidad_sel < o.ValorMinimo)
-                        o.ErrorMensaje = (cantidad_sel < o.ValorMinimo)?'Seleccione minimo '+o.ValorMinimo:''
+                        o.ErrorMensaje = (cantidad_sel < o.ValorMinimo) ? 'Seleccione minimo ' + o.ValorMinimo : ''
                         cantidad_sel = 0
                     }
                 } else {
                     o.Error = cantidad_sel < o.ValorMinimo
-                    o.ErrorMensaje = (cantidad_sel < o.ValorMinimo)?'Seleccione minimo '+o.ValorMinimo:''
+                    o.ErrorMensaje = (cantidad_sel < o.ValorMinimo) ? 'Seleccione minimo ' + o.ValorMinimo : ''
                     cantidad_sel = 0
                 }
 
@@ -357,7 +337,7 @@ export default class ProductoDetalle extends Component<{}> {
                 p.Cantidad = this.state.Cantidad
                 p.Cod_Mesa = Cod_Mesa
                 p.PrecioUnitario = this.state.Total / this.state.Cantidad
-                p.Numero =store.getState().Numero_Comprobante
+                p.Numero = store.getState().Numero_Comprobante
 
                 if (this.state.Opciones.length == 0 && !hay_precios) {
                     p.Id_Pedido = (p.Id_Producto).toString()
@@ -367,21 +347,21 @@ export default class ProductoDetalle extends Component<{}> {
                     })
                 } else {
                     //console.log(store.getState().productos[0].Id_Pedido)
-                    var Id_Detalle = parseInt(p.Id_Producto + ''+store.getState().Nro_Pedido)
+                    var Id_Detalle = parseInt(p.Id_Producto + '' + store.getState().Nro_Pedido)
                     var found = store.getState().productos.find(p => {
                         return (p.Id_Detalle === Id_Detalle);
                     });
-                    p.Id_Detalle = found?Id_Detalle+1:Id_Detalle
+                    p.Id_Detalle = found ? Id_Detalle + 1 : Id_Detalle
                     p.Id_Referencia = 0
                     //console.log(store.getState().productos[0].Id_Pedido)
                     store.dispatch({
                         type: 'ADD_PRODUCTO',
                         producto: p,
-                        producto_detalles: this.state.Opciones.filter((o,i) => {
-                            if (o.Seleccionado == true && o.Cantidad>0) {
-                                o.Id_Detalle = p.Id_Detalle.toString()+i
+                        producto_detalles: this.state.Opciones.filter((o, i) => {
+                            if (o.Seleccionado == true && o.Cantidad > 0) {
+                                o.Id_Detalle = p.Id_Detalle.toString() + i
                                 o.Id_Referencia = p.Id_Detalle
-                                o.Cod_Mesa =  Cod_Mesa
+                                o.Cod_Mesa = Cod_Mesa
                                 o.Estado_Pedido = 'PENDIENTE'
                                 return o
                             }

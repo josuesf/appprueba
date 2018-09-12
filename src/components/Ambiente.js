@@ -8,12 +8,13 @@ import {
     StyleSheet,
     TouchableOpacity
 } from 'react-native'
+import { NavigationActions } from 'react-navigation'
 
 import Mesa from '../components/Mesa'
 import { ProgressDialog, Dialog } from 'react-native-simple-dialogs';
 import store from '../store'
 import { URL_WS } from '../Constantes'
-
+import { fetchData } from '../utils/fetchData'
 
 const { width, height } = Dimensions.get('window')
 export default class Ambiente extends Component {
@@ -30,46 +31,52 @@ export default class Ambiente extends Component {
             cuentas_mesa: [],
             refreshing: false,
         }
+
     }
     componentWillMount() {
         this.BuscarMesas()
     }
     BuscarMesas = () => {
-        const parametros = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                usuario: store.getState().nombre_usuario,
-                Cod_Ambiente: this.state.Cod_Ambiente
-            })
-        }
-        fetch(URL_WS + '/get_mesas_estado', parametros)
-            .then((response) => response.json())
-            .then((data) => {
-                // console.log(data)
-                const mesa_dev = data.mesas.find(p => p.Cod_Mesa == 'DEV')
-                this.setState({ conectando: false, mesas: [mesa_dev, ...data.mesas.filter(m => m.Cod_Mesa != 'DEV')] })
-            })
+        fetchData('/get_mesas_estado', 'POST', {
+            usuario: store.getState().nombre_usuario,
+            Cod_Ambiente: this.state.Cod_Ambiente
+        }, (data, err) => {
+            const mesa_dev = data.mesas.find(p => p.Cod_Mesa == 'DEV')
+            this.setState({ conectando: false, mesas: [mesa_dev, ...data.mesas.filter(m => m.Cod_Mesa != 'DEV')] })
+        })
     }
     SeleccionarMesa = (Cod_Mesa, Nom_Mesa, Estado_Mesa) => {
         const productos_mesa_cambio = this.props.navigation.state.params
-        this.setState({ entrando_mesa: true })
-        const parametros = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                Cod_Mesa: Cod_Mesa
+        const IdComprobanteOrigen = productos_mesa_cambio ? productos_mesa_cambio.IdComanda : undefined
+        if (productos_mesa_cambio && productos_mesa_cambio.Cod_Mesa) {
+
+            //Cambio interno
+            // store.dispatch({
+            //     type: 'CAMBIO_MESA',
+            //     mesa_actual: productos_mesa_cambio.Cod_Mesa,
+            //     mesa_nueva: Cod_Mesa
+            // })
+            fetchData('/cambio_mesa', 'POST', {
+                IdComanda: productos_mesa_cambio.IdComanda,
+                CodMesaCambio: Cod_Mesa,
+                CodUsuario: store.getState().id_usuario
+            }, (respuesta, err) => {
+                console.log(respuesta, err)
+                if (!err) {
+                    const vista_mesas = NavigationActions.reset({
+                        index: 0,
+                        actions: [
+                            NavigationActions.navigate({ routeName: 'mesas' })
+                        ]
+                    })
+                    this.props.navigation.dispatch(vista_mesas)
+                }
             })
-        }
-        fetch(URL_WS + '/get_productos_by_mesa', parametros)
-            .then((response) => response.json())
-            .then((data) => {
+        } else {
+            this.setState({ entrando_mesa: true })
+            fetchData('/get_productos_by_mesa', 'POST', {
+                Cod_Mesa: Cod_Mesa
+            }, (data, err) => {
                 this.setState({ entrando_mesa: false })
                 store.dispatch({
                     type: 'MESA_SELECCIONADA',
@@ -100,35 +107,45 @@ export default class Ambiente extends Component {
                                 Numero_Comprobante: data.productos_selec[0].Numero,
                                 Numero_Cuenta: 1
                             })
-                            this.props.navigation.navigate('main', { productos_selec: data.productos_selec })
+                            this.props.navigation.navigate('main',
+                                {
+                                    productos_selec: data.productos_selec
+                                    , IdComprobanteOrigen
+                                })
                         } else {
                             this.setState({ OpcionesVisible: true })
                         }
                     })
                 } else {
-                    if (productos_mesa_cambio) {
-                        store.dispatch({
-                            type: 'CAMBIO_MESA',
-                            mesa_actual: productos_mesa_cambio.Cod_Mesa,
-                            mesa_nueva: Cod_Mesa
-                        })
-                    }
+
                     store.dispatch({
                         type: 'ADD_NUMERO_COMPROBANTE',
                         Numero_Comprobante: '',
                     })
-                    this.props.navigation.navigate('main', { productos_selec: data.productos_selec })
+                    this.props.navigation.navigate('main',
+                        {
+                            productos_selec: data.productos_selec
+                            , IdComprobanteOrigen
+                        })
                 }
             })
+        }
+
     }
     AbrirCuentaMesa(Numero, Numero_Cuenta) {
+        const productos_mesa_cambio = this.props.navigation.state.params
+        const IdComprobanteOrigen = productos_mesa_cambio ? productos_mesa_cambio.IdComanda : undefined
         this.setState({ OpcionesVisible: false })
         store.dispatch({
             type: 'ADD_NUMERO_COMPROBANTE',
             Numero_Comprobante: Numero,
             Numero_Cuenta: Numero_Cuenta
         })
-        this.props.navigation.navigate('main', { productos_selec: [] })
+        this.props.navigation.navigate('main',
+            {
+                productos_selec: [],
+                IdComprobanteOrigen
+            })
     }
     DetectOrientation() {
         if (this.state.Width_Layout > this.state.Height_Layout) {
@@ -167,7 +184,7 @@ export default class Ambiente extends Component {
                     alignItems: 'center'
 
                 }}
-                onfocus={() => console.log('Primera pantalla')}
+
             >
                 <ProgressDialog
                     activityIndicatorColor={"#9b59b6"}

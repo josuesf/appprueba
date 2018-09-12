@@ -28,27 +28,17 @@ export default class ProductoDivision extends Component {
             producto_detalles: store.getState().producto_detalles.filter(p => p.Id_Referencia == this.props.producto.Id_Detalle),
             para_llevar: this.props.producto.para_llevar,
             notaProducto: false,
-            cantidad_seleccionada: this.props.producto.cantidad_seleccionada
+            cantidad_seleccionada: 0
         }
     }
 
     AgregarProducto = () => {
-        if(this.state.Cantidad>0){
-            this.setState({
-                cantidad_seleccionada: this.state.cantidad_seleccionada + 1,
-                Cantidad: this.state.Cantidad - 1
-            },()=>{
-                this.props.agregar(this.props.producto,this.state.cantidad_seleccionada)
-            })
-            
+        if(this.props.producto.Cantidad>0){
+            this.props.agregar(this.props.producto,this.state.cantidad_seleccionada)            
         }
     }
     RestarProducto = () => {
-        if(this.state.cantidad_seleccionada>0){
-            this.setState({
-                cantidad_seleccionada: this.state.cantidad_seleccionada - 1,
-                Cantidad: this.state.Cantidad + 1
-            })
+        if(this.props.producto.cantidad_seleccionada>0){
             this.props.quitar(this.props.producto,this.state.cantidad_seleccionada)
         }
     }
@@ -84,12 +74,12 @@ export default class ProductoDivision extends Component {
                         <IconMaterial color={"#ef6d13"} name='minus-box-outline' size={30} />
                     </TouchableOpacity>}
 
-                    {divisible && <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >{this.state.cantidad_seleccionada}</Text>}
+                    {divisible && <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >{this.props.producto.cantidad_seleccionada}</Text>}
                     {divisible && <TouchableOpacity onPress={() => this.AgregarProducto()} style={{ marginLeft: 10 }}>
                         <IconMaterial color={"#ef6d13"} name='plus-box-outline' size={30} />
                     </TouchableOpacity> }
                     <Text style={{ color: '#95a5a6', fontWeight: 'bold', marginRight: 40, marginLeft: 10, flex: 1 }}>{this.props.producto.Nom_Producto}</Text>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#95a5a6' }} > {this.state.Cantidad}</Text>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#95a5a6' }} > {this.props.producto.Cantidad}</Text>
 
                 </View>
 

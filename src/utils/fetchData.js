@@ -1,7 +1,8 @@
 
-import {URL_WS} from '../Constantes'
+//import {URL_WS} from '../Constantes'
+import {AsyncStorage} from 'react-native'
 module.exports = {
-    fetchData: (url,method,params, callback) => {
+    fetchData: async (url,method,params, callback) => {
         const parametros = {
             method: method,
             headers: {
@@ -10,11 +11,13 @@ module.exports = {
             },
             body: JSON.stringify(params)
         }
-        fetch(URL_WS + url, parametros) //http://192.168.1.5:8000
+        const HOST = JSON.parse(await AsyncStorage.getItem('DATA_INI')).host_ip
+        fetch(HOST + url, parametros) //http://192.168.1.5:8000
             .then((response) => response.json())
             .then((responseJson) => {
+                //console.log(responseJson)
                 if(!responseJson.err){
-                    callback(responseJson.respuesta,undefined)
+                    callback(responseJson,undefined)
                 }else{
                     callback(undefined,responseJson.err)
                 }

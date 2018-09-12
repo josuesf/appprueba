@@ -20,10 +20,13 @@ import {
     ToastAndroid
 } from 'react-native';
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
+import { NavigationActions } from 'react-navigation'
 import { URL_WS } from '../Constantes'
 import store from '../store'
-import { Dialog, ProgressDialog } from 'react-native-simple-dialogs';
+import { ConfirmDialog, ProgressDialog } from 'react-native-simple-dialogs';
 import ProductoDivision from '../components/ProductoDivision';
+import { fetchData } from '../utils/fetchData'
+
 export default class DivisionCuenta extends Component {
 
     //Personalizacion de Toolbar
@@ -38,8 +41,8 @@ export default class DivisionCuenta extends Component {
             },
             headerRight: (
                 store.getState().tipo_usuario == 'EMPLEADO' &&
-                <TouchableOpacity onPress={params.AbrirOpciones} style={{ paddingHorizontal: 10 }}>
-                    <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
+                <TouchableOpacity onPress={params.guardar} style={{ paddingHorizontal: 10 }}>
+                    <Text style={{ color: '#ffeaa7', fontWeight: 'bold' }}>Guardar</Text>
                 </TouchableOpacity>
             ),
         }
@@ -50,26 +53,39 @@ export default class DivisionCuenta extends Component {
         console.ignoredYellowBox = [
             'Setting a timer'
         ];
+
         this.state = {
-            productos: store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa && p.Numero == store.getState().Numero_Comprobante).slice(0),
+            productos: [],
             total: 0,
             cuenta_principal: store.getState().Numero_Comprobante,
             Nom_Cliente: '',
             cuentas: [],
             productos_cuenta: [],
-            nro_cuenta_actual: 2,
+            nro_cuenta_actual: Date.now(),
         }
     }
     componentWillMount() {
-        
-        this.setState({
-            cantidad_restante:this.state.productos.reduce((a, b) => a + b.Cantidad, 0)
-        })
+        this.SeleccionarMesa(store.getState().Cod_Mesa, store.getState().Numero_Comprobante)
         //Personalizacion de Accion boton superior derecho
-        this.props.navigation.setParams({ AbrirOpciones: this._AbrirOpciones });
+        this.props.navigation.setParams({ guardar: this.GuardarDivision });
     }
-    _AbrirOpciones = () => {
-        this.setState({ OpcionesVisible: true })
+    SeleccionarMesa = (Cod_Mesa, Numero) => {
+
+        fetchData('/get_productos_by_mesa', 'POST', { Cod_Mesa }, (data, err) => {
+            //console.log(data.productos_selec)
+            this.setState({
+                productos: data.productos_selec.filter(p => {
+                    if (p.Numero == Numero && p.Id_Referencia == 0) {
+                        p.cantidad_seleccionada = 0
+                        return p
+                    } else
+                        return null
+                })
+            })
+        })
+    }
+    GuardarDivision = () => {
+        this.DividirPedido()
     }
     componentDidMount() {
         this.CalcularTotal(this.state.productos)
@@ -80,7 +96,8 @@ export default class DivisionCuenta extends Component {
     }
     agregar = (producto, cantidad_seleccionada) => {
         //console.log(producto)
-        if (!this.state.productos_cuenta.find(p => p.Id_Producto == producto.Id_Producto)) {
+        if (!this.state.productos_cuenta.find(p => p.Id_Detalle == producto.Id_Detalle && p.Numero == this.state.nro_cuenta_actual)) {
+
             let producto_new = {
                 Id_Producto: producto.Id_Producto,
                 Id_Detalle: producto.Id_Detalle,
@@ -89,28 +106,45 @@ export default class DivisionCuenta extends Component {
                 Cod_TipoOperatividad: producto.Cod_TipoOperatividad,
                 Cod_Almacen: producto.Cod_Almacen,
                 Nom_Producto: producto.Nom_Producto,
-                Cantidad: cantidad_seleccionada,
+                Cantidad: 1,
                 Cod_Mesa: producto.Cod_Mesa,
                 PrecioUnitario: producto.PrecioUnitario,
                 Estado_Pedido: producto.Estado_Pedido
             }
             this.setState({
+                productos: this.state.productos.filter(p => {
+                    if (p.Id_Detalle == producto.Id_Detalle) {
+                        p.Cantidad = p.Cantidad - 1
+                        p.cantidad_seleccionada = p.cantidad_seleccionada + 1
+                    }
+                    return p
+                }),
                 productos_cuenta: this.state.productos_cuenta.concat(producto_new)
             })
 
         } else {
-            this.state.productos_cuenta.filter(p => {
-                if (p.Id_Producto == producto.Id_Producto) {
-                    p.Cantidad = cantidad_seleccionada
-                }
-                return p
+
+            this.setState({
+                productos: this.state.productos.filter(p => {
+                    if (p.Id_Detalle == producto.Id_Detalle) {
+                        p.Cantidad = p.Cantidad - 1
+                        p.cantidad_seleccionada = p.cantidad_seleccionada + 1
+                    }
+                    return p
+                }),
+                productos_cuenta: this.state.productos_cuenta.filter(p => {
+                    if (p.Id_Producto == producto.Id_Producto && p.Numero == this.state.nro_cuenta_actual) {
+                        p.Cantidad = p.Cantidad + 1
+                    }
+                    return p
+                })
             })
         }
     }
     quitar = (producto, cantidad_seleccionada) => {
         this.setState({
             productos_cuenta: this.state.productos_cuenta.filter(p => {
-                if (p.Id_Producto == producto.Id_Producto) {
+                if (p.Id_Detalle == producto.Id_Detalle && p.Numero == this.state.nro_cuenta_actual) {
                     if (p.Cantidad > 1) {
                         p.Cantidad = p.Cantidad - 1
                         return p
@@ -119,28 +153,105 @@ export default class DivisionCuenta extends Component {
                     }
                 } else
                     return p
-            })
+            }),
+            productos: this.state.productos.filter(p => {
+                if (p.Id_Detalle == producto.Id_Detalle) {
+                    p.Cantidad = p.Cantidad + 1
+                    p.cantidad_seleccionada = p.cantidad_seleccionada - 1
+                }
+                return p
+            }),
         })
     }
     dividir = () => {
         let prod_ = this.state.productos.reduce((a, b) => a + b.Cantidad, 0)
-        let prod_a_dividir = this.state.productos_cuenta.reduce((a, b) => a + b.Cantidad, 0)
-        
-        if (prod_ - prod_a_dividir > 0){
-            this.state.productos_cuenta.forEach(p=>{
+        let prod_a_dividir = this.state.productos_cuenta.filter(p => p.Numero == this.state.nro_cuenta_actual).length
 
-            })
+        if (prod_ > 0 && prod_a_dividir > 0) {
             this.setState({
-                productos:this.state.productos.filter(p=>{p.cantidad_seleccionada=0; return p}),
+                productos: this.state.productos.filter(p => {
+                    if (p.Cantidad > 0) {
+                        p.cantidad_seleccionada = 0
+                        return p
+                    } else
+                        return null
+                }),
                 cuentas: this.state.cuentas.concat(this.state.nro_cuenta_actual),
-                nro_cuenta_actual: this.state.nro_cuenta_actual + 1
+                nro_cuenta_actual: Date.now()
             })
-        }else
+        } else
             ToastAndroid.showWithGravity(
-                'All Your Base Are Belong To Us',
+                'La cuenta es indivisible',
                 ToastAndroid.SHORT,
                 ToastAndroid.CENTER
             );
+    }
+    DeshacerCuenta = () => {
+        let { cuentaEliminar, productos_cuenta, productos } = this.state
+        // productos_cuenta = productos_cuenta.filter(p => p.Numero == cuentaEliminar)
+        this.setState({
+            productos_cuenta: productos_cuenta.filter(p => {
+                if (p.Numero == cuentaEliminar) {
+                    this.integrar(p)
+                    return null
+                } else {
+                    return p
+                }
+            }),
+            cuentas: this.state.cuentas.filter(c => c != cuentaEliminar),
+            preguntaEliminar: false
+        })
+    }
+    integrar = (p) => {
+        let { productos } = this.state
+        if (productos.find(pc => pc.Id_Detalle == p.Id_Detalle)) {
+            this.setState({
+                productos: this.state.productos.filter(pro => {
+                    if (pro.Id_Detalle == p.Id_Detalle) {
+                        pro.Cantidad = pro.Cantidad + p.Cantidad
+                        pro.cantidad_seleccionada = 0
+                    }
+                })
+            })
+        } else {
+            p.Numero = this.state.cuenta_principal
+            p.cantidad_seleccionada = 0
+            this.setState({
+                productos: this.state.productos.concat(p)
+            })
+        }
+    }
+    DividirPedido = () => {
+        this.setState({ cargando: true })
+        Productos_Detalles = store.getState().producto_detalles.filter(p => (p.Cod_Mesa == store.getState().Cod_Mesa && p.Estado_Pedido == 'CONFIRMA'))
+        console.log(this.state.productos.concat(this.state.productos_cuenta))
+        console.log(Productos_Detalles)
+        fetchData('/dividir_cuenta', 'POST', {
+            Cod_Mesa: store.getState().Cod_Mesa,
+            Productos: this.state.productos.concat(this.state.productos_cuenta),
+            Productos_Detalles,
+            Cod_Moneda: 'PEN',//this.state.productos[0].Cod_Moneda,
+            Numero: this.state.cuenta_principal,
+            Nom_Cliente: "CLIENTES VARIOS",
+            Total: 0,//this.state.productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
+            Cod_Vendedor: store.getState().id_usuario,
+            Estado_Mesa: 'OCUPADO',
+        }, (data, err) => {
+            this.setState({ cargando: false })
+            if (data.respuesta == 'ok') {
+                //Guardar Numero
+                // Alert.alert('Gracias!', 'Tu pedido esta en cola')
+                const vista_mesas = NavigationActions.reset({
+                    index: 0,
+                    actions: [
+                        NavigationActions.navigate({ routeName: 'mesas' })
+                    ]
+                })
+                this.props.navigation.dispatch(vista_mesas)
+            } else {
+                Alert.alert('Sucedio algo!', 'Vuelve a intentarlo o nuestro vendra a ayudarlo')
+            }
+        })
     }
     render() {
         const { navigate } = this.props.navigation;
@@ -151,25 +262,29 @@ export default class DivisionCuenta extends Component {
                     <FlatList
                         data={this.state.productos}
                         renderItem={({ item }) => (
-                            <ProductoDivision  producto={item} navigate={navigate} divisible={true} agregar={this.agregar} quitar={this.quitar} />
+                            <ProductoDivision producto={item} navigate={navigate} divisible={true} agregar={this.agregar} quitar={this.quitar} />
                         )}
                         keyExtractor={(item, index) => index}
                     />
-                    <TouchableOpacity activeOpacity={0.5} onPress={this.dividir}
+                    {this.state.productos_cuenta.filter(p => p.Numero == this.state.nro_cuenta_actual).length > 0 && <TouchableOpacity activeOpacity={0.5} onPress={this.dividir} //
                         style={{
                             height: 50, borderRadius: 5, marginHorizontal: 10,
                             marginVertical: 10, backgroundColor: '#00b894', justifyContent: 'center'
                         }}>
                         <Text style={{ fontWeight: 'bold', color: '#FFF', alignSelf: 'center' }}>
                             SEPARAR</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
                 </View>
                 <ScrollView>
 
                     {this.state.cuentas.map((c, i) =>
-                        <View key={i} style={{ backgroundColor: '#eee' }}>
+                        <TouchableOpacity activeOpacity={0.8}
+                            //onLongPress={() => this.setState({ preguntaEliminar: true, cuentaEliminar: c })} 
+                            key={i}
+                            style={{ backgroundColor: '#eee' }}>
                             <View style={{ justifyContent: 'center' }}>
-                                <Text style={{ color: '#333', paddingVertical: 5, fontWeight: 'bold', marginHorizontal: 15 }}>Cuenta {c}</Text>
+                                <Text style={{ color: '#333', paddingVertical: 5, fontWeight: 'bold', marginHorizontal: 15 }}>Cuenta {i + 2}</Text>
+
                             </View>
                             <FlatList
                                 data={this.state.productos_cuenta.filter(p => p.Numero == c)}
@@ -178,7 +293,7 @@ export default class DivisionCuenta extends Component {
                                 )}
                                 keyExtractor={(item, index) => index}
                             />
-                        </View>
+                        </TouchableOpacity>
                     )}
 
 
@@ -202,6 +317,20 @@ export default class DivisionCuenta extends Component {
                     visible={this.state.cargando}
                     title="Cargando"
                     message="Por favor, espere..."
+                />
+                <ConfirmDialog
+                    title="Deshacer cuenta"
+                    message="Esta seguro de deshacer esta cuenta?"
+                    visible={this.state.preguntaEliminar}
+                    onTouchOutside={() => this.setState({ preguntaEliminar: false })}
+                    positiveButton={{
+                        title: "SI",
+                        onPress: () => this.DeshacerCuenta()
+                    }}
+                    negativeButton={{
+                        title: "NO",
+                        onPress: () => this.setState({ preguntaEliminar: false })
+                    }}
                 />
             </View>
         );

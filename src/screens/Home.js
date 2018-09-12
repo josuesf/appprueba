@@ -21,10 +21,11 @@ import { NavigationActions } from 'react-navigation'
 import Icon from 'react-native-vector-icons/Ionicons';
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconFondation from 'react-native-vector-icons/Foundation'
-import { Dialog,ProgressDialog} from 'react-native-simple-dialogs';
+import { Dialog, ProgressDialog } from 'react-native-simple-dialogs';
 import Producto from '../components/Producto'
 import store from '../store'
 import { URL_WS } from '../Constantes'
+import { fetchData } from '../utils/fetchData'
 const { width, height } = Dimensions.get('window')
 
 export default class Home extends Component<{}> {
@@ -46,7 +47,7 @@ export default class Home extends Component<{}> {
             categorias_padre: [],
             categorias: [],
             cantidad_items: 0,
-            productos_todos:[]
+            productos_todos: []
         }
     }
     componentWillMount() {
@@ -61,7 +62,7 @@ export default class Home extends Component<{}> {
         })
     }
     CalcularTotal = () => {
-        productos = store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa && p.Numero==store.getState().Numero_Comprobante)
+        productos = store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa && p.Numero == store.getState().Numero_Comprobante)
         this.setState({
             total: productos.reduce((a, b) => a + (b.PrecioUnitario * b.Cantidad), 0),
             cantidad_items: productos.reduce((a, b) => a + (b.Cantidad), 0),
@@ -69,57 +70,34 @@ export default class Home extends Component<{}> {
 
     }
     RecuperarCategoriasPadre = () => {
-        const parametros = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
-        }
-        fetch(URL_WS + '/get_categorias_padre', parametros)
-            .then((response) => response.json())
-            .then((data) => {
-                categorias = data.categorias.filter((c, index) => {
-                    if (index == 0)
-                        c["Seleccionado"] = 1
-                    else
-                        c["Seleccionado"] = 0
-                    return c
-                })
-                this.setState({
-                    categorias_padre: categorias
-                }, () => {
-                    this.RecuperarCategoriasHijas(data.categorias[0].Cod_Categoria)
-                })
-                //Cod_Categoria: "HEL", Des_Categoria
+        fetchData('/get_categorias_padre', 'POST', {}, (data, err) => {
+            categorias = data.categorias.filter((c, index) => {
+                if (index == 0)
+                    c["Seleccionado"] = 1
+                else
+                    c["Seleccionado"] = 0
+                return c
             })
+            this.setState({
+                categorias_padre: categorias
+            }, () => {
+                this.RecuperarCategoriasHijas(data.categorias[0].Cod_Categoria)
+            })
+        })
     }
     RecuperarCategoriasHijas = (cod_categoria_padre) => {
         this.setState({ productos: [] })
-        const parametros = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                Cod_Categoria: cod_categoria_padre
+        fetchData('/get_categorias_hijas', 'POST', {
+            Cod_Categoria: cod_categoria_padre
+        }, (data, err) => {
+            categorias = data.categorias.filter((c, index) => {
+                c["Seleccionado"] = 0
+                return c
             })
-        }
-        fetch(URL_WS + '/get_categorias_hijas', parametros)
-            .then((response) => response.json())
-            .then((data) => {
-                categorias = data.categorias.filter((c, index) => {
-                    c["Seleccionado"] = 0
-                    return c
-                })
-                this.setState({
-                    categorias: categorias
-                } //, () => {this.RecuperarProductosXCategoria(categorias[0].Cod_Categoria)}
-                )
-                //Cod_Categoria: "HEL", Des_Categoria
+            this.setState({
+                categorias: categorias
             })
+        })
     }
     SeleccionarCategoriaPadre = (Cod_Categoria) => {
         this.RecuperarCategoriasHijas(Cod_Categoria)
@@ -132,14 +110,7 @@ export default class Home extends Component<{}> {
         })
         this.setState({ categorias_padre: [] }, () => this.setState({ categorias_padre: categorias }))
     }
-    SeleccionarCategoriaHija = (Cod_Categoria, Seleccionado) => {
-        // if (Seleccionado != 1) {
-        //     this.setState({ buscando: true, productos: [] },()=>{
-        //         this.setState({productos:this.state.productos_todos.filter(p=>p.Cod_Categoria==Cod_Categoria),buscando:false})
-        //     })
-        //     //this.RecuperarProductosXCategoria(Cod_Categoria)
-        // }
-
+    SeleccionarCategoriaHija = (Cod_Categoria, Seleccionado, index) => {
         var categorias = this.state.categorias.filter(c => {
             if (c.Cod_Categoria == Cod_Categoria)
                 c["Seleccionado"] = Seleccionado == 1 ? 0 : 1
@@ -147,73 +118,54 @@ export default class Home extends Component<{}> {
                 c["Seleccionado"] = 0
             return c
         })
-        this.setState({ categorias: [], productos: [] }, () => this.setState({ categorias: categorias, productos: this.state.productos_todos.filter(p => p.Cod_Categoria == Cod_Categoria) }))
+        this.setState({
+            categorias: categorias,
+            productos: this.state.productos_todos.filter(p => p.Cod_Categoria == Cod_Categoria),
+            currentIndex: index
+        })
+        setTimeout(() => {
+            this.flatListRef.scrollToIndex({ animated: true, index });
+        }, 1000)
+
     }
     RecuperarProductosXCategoria = (Cod_Categoria) => {
         this.setState({ buscando: true, productos: [] })
-        const parametros = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                Cod_Categoria: Cod_Categoria
-            })
-        }
-        fetch(URL_WS + '/get_productos_by_categoria', parametros)
-            .then((response) => response.json())
-            .then((data) => {
-                this.setState({ productos: data.productos, buscando: false })
-            })
+        fetchData('/get_productos_by_categoria','POST',{
+            Cod_Categoria: Cod_Categoria
+        },(data,err)=>{
+            this.setState({ productos: data.productos, buscando: false })
+        })
     }
     RecuperarCategorias_Todas = () => {
         this.setState({ productos: [] })
-        const parametros = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
-        }
-        fetch(URL_WS + '/get_categorias_todas', parametros)
-            .then((response) => response.json())
-            .then((data) => {
-                this.setState({
-                    categorias: data.categorias
-                })
+        fetchData('/get_categorias_todas','POST',{},(data,err)=>{
+            this.setState({
+                categorias: data.categorias
             })
+        })
     }
     RecuperarProductos_Todos = () => {
         this.setState({ buscando: true, productos: [] })
-        const parametros = {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
-        }
-        fetch(URL_WS + '/get_productos_todos', parametros)
-            .then((response) => response.json())
-            .then((data) => {
-                this.setState({ productos_todos: data.productos, buscando: false })
-            })
+        fetchData('/get_productos_todos','POST',{},(data,err)=>{
+            this.setState({ productos_todos: data.productos, buscando: false })
+        })
     }
-    NuevaCuenta=()=>{
-        this.setState({OpcionesVisible:false})
+    NuevaCuenta = () => {
+        this.setState({ OpcionesVisible: false })
         const nuevo = NavigationActions.back({
-            key:'main',
-          });
+            key: 'main',
+        });
         store.dispatch({
             type: 'ADD_NUMERO_COMPROBANTE',
             Numero_Comprobante: '',
         })
         this.props.navigation.dispatch(nuevo)
     }
+    IrIndex = () => {
+        this.flatListRef.scrollToIndex({ animated: true, index: this.state.currentIndex });
+    }
     render() {
-        const { navigate,goBack } = this.props.navigation;
+        const { navigate, goBack } = this.props.navigation;
         return (
             <View style={styles.container}>
                 <StatusBar
@@ -221,17 +173,17 @@ export default class Home extends Component<{}> {
                     barStyle="default"
                 />
                 <View style={{ height: 60, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FF5733', justifyContent: 'center' }}>
-                    <TouchableOpacity onPress={()=>goBack()} style={{ paddingHorizontal: 10 }}>
+                    <TouchableOpacity onPress={() => goBack()} style={{ paddingHorizontal: 10 }}>
                         <IconMaterial color={'#ffeaa7'} name='arrow-left' size={25} />
                     </TouchableOpacity>
-                    <View style={{flex: 1, marginHorizontal: 10}}>
+                    <View style={{ flex: 1, marginHorizontal: 10 }}>
                         <Text style={{ color: '#ffeaa7', fontWeight: 'bold' }}>{store.getState().Nom_Mesa}</Text>
                         <Text style={{ color: '#ffeaa7' }}>Cuenta {store.getState().Numero_Cuenta}</Text>
                     </View>
-                    {store.getState().Numero_Comprobante!='' &&
-                    <TouchableOpacity onPress={()=>this.setState({OpcionesVisible:true})} style={{ paddingHorizontal: 10 }}>
-                        <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
-                    </TouchableOpacity>}
+                    {store.getState().Numero_Comprobante != '' &&
+                        <TouchableOpacity onPress={() => this.setState({ OpcionesVisible: true })} style={{ paddingHorizontal: 10 }}>
+                            <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
+                        </TouchableOpacity>}
                 </View>
                 <ProgressDialog
                     activityIndicatorColor={"#9b59b6"}
@@ -251,22 +203,28 @@ export default class Home extends Component<{}> {
                     </ScrollView>
                 </View>*/}
                 <View style={{ backgroundColor: '#FFF', flex: 1 }}>
-
-                    <ScrollView  >
-                        {this.state.categorias.map((c, index) =>
-                            <View key={c.Cod_Categoria}>
-                                <TouchableOpacity onPress={() => this.SeleccionarCategoriaHija(c.Cod_Categoria, c.Seleccionado)}
+                    <FlatList
+                        ref={(ref) => { this.flatListRef = ref; }}
+                        keyExtractor={item => item.Cod_Categoria}
+                        data={this.state.categorias}
+                        // initialScrollIndex={50}
+                        // initialNumToRender={2}
+                        renderItem={({ item, index }) => (
+                            <View key={item.Cod_Categoria}>
+                                <TouchableOpacity onPress={() => this.SeleccionarCategoriaHija(item.Cod_Categoria, item.Seleccionado, index)}
                                     activeOpacity={0.7} style={{ backgroundColor: '#FFF', flexDirection: 'row', alignItems: 'center', marginRight: 1 }}>
 
-                                    <Text style={{ color: c.Seleccionado == 1 ? '#f60606' : '#95a5a6', flex: 1, fontWeight: 'bold', paddingHorizontal: 5, marginLeft: 10, paddingVertical: 10 }}>{c.Des_Categoria}</Text>
+                                    <Text style={{ color: item.Seleccionado == 1 ? '#f60606' : '#95a5a6', flex: 1, fontWeight: 'bold', paddingHorizontal: 5, marginLeft: 10, paddingVertical: 10 }}>
+                                        {item.Des_Categoria}
+                                    </Text>
                                     <IconMaterial
-                                        name={c.Seleccionado != 1 ? 'chevron-down' : 'chevron-up'}
+                                        name={item.Seleccionado != 1 ? 'chevron-down' : 'chevron-up'}
                                         size={25} style={{ marginHorizontal: 10 }}
-                                        color={c.Seleccionado == 1 ? '#f60606' : '#95a5a6'}
+                                        color={item.Seleccionado == 1 ? '#f60606' : '#95a5a6'}
                                     />
 
                                 </TouchableOpacity>
-                                {c.Seleccionado == 1 &&
+                                {item.Seleccionado == 1 &&
                                     <View>
                                         <FlatList
                                             data={this.state.productos}
@@ -277,12 +235,14 @@ export default class Home extends Component<{}> {
                                         />
                                     </View>}
                             </View>
-
                         )}
-                    </ScrollView>
+                    />
                     <View ref="pedidos_ref" >
                         {parseFloat(this.state.total) > 0 &&
-                            <TouchableOpacity activeOpacity={0.8} onPress={() => navigate('pedido')}
+                            <TouchableOpacity activeOpacity={0.8}
+                                onPress={() => navigate('pedido',
+                                    { IdComprobanteOrigen: this.props.navigation.state.params.IdComprobanteOrigen })}
+                                // onPress={this.IrIndex}
                                 style={{
                                     height: 50, backgroundColor: '#FF5733',
                                     borderRadius: 5, marginHorizontal: 10, marginBottom: 10,
@@ -306,7 +266,7 @@ export default class Home extends Component<{}> {
                             <Text style={{ fontWeight: 'bold', color: 'gray' }}>Crear nueva cuenta</Text>
                         </TouchableOpacity>
                     </View>
-                </Dialog>       
+                </Dialog>
 
 
             </View>

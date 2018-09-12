@@ -144,6 +144,13 @@ const reducer = (state, action) => {
             producto_detalles:state.producto_detalles.filter(p=>p.Numero!=action.Numero)
         }
     }
+    if (action.type == "DIVIDIR") {
+        return {
+            ...state,
+            last_event: 'DIVIDIR',
+            cantidad_seleccionada:action.cantidad_seleccionada
+        }
+    }
     return state
 }
 export default createStore(reducer,

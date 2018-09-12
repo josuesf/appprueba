@@ -70,7 +70,6 @@ export default class BusquedaDoc extends Component<{}> {
             })
     }
     CambioNroDoc=(Nro_Doc)=>{
-        console.log(this.state.TipoDoc)
         if(this.state.TipoDoc=="RUC"){
             if(Nro_Doc.length==11){
                 alert(Nro_Doc)
