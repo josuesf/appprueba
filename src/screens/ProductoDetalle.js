@@ -33,15 +33,16 @@ import MultipleBox from '../components/MultipleBox'
 import { fetchData } from '../utils/fetchData'
 
 export default class ProductoDetalle extends Component<{}> {
-    static navigationOptions = {
-        title: 'Detalle',
-        headerTintColor: '#ffeaa7',
-        headerBackTitle: 'Atras',
-        headerStyle: {
-            backgroundColor: '#FF5733',
+    static navigationOptions = ({ navigation }) => {
+        const params = navigation.state.params || {};
+        return {
+            title: 'Detalle',
+            headerTintColor: global.tema.primary,
+            headerStyle: {
+                backgroundColor: '#FFF',
+            }
         }
-
-    };
+    }
     constructor() {
         super()
         console.ignoredYellowBox = [
@@ -121,7 +122,7 @@ export default class ProductoDetalle extends Component<{}> {
                                     value={p.Seleccionado || false}
                                     textValue={p.Nom_Precio}
                                     textPrecio={"S/." + p.PrecioUnitario.toFixed(2)}
-                                    colorActive={'#ef6d13'}
+                                    colorActive={global.tema.primary}
                                     textStyle={{ color: '#95a5a6' }} />)}
                         </View>
                     }
@@ -137,7 +138,7 @@ export default class ProductoDetalle extends Component<{}> {
                                     value={opc.Seleccionado || false}
                                     textValue={opc.Nom_Producto}
                                     textPrecio={"S/." + opc.PrecioUnitario.toFixed(2)}
-                                    colorActive={'#ef6d13'}
+                                    colorActive={global.tema.primary}
                                     textStyle={{ color: '#95a5a6' }} />}
                             {opc.CantidadMax_Grupo == 1 &&
                                 <CheckBox onPress={() => this.SeleccionarCheck(opc.Item_Detalle)}
@@ -146,7 +147,7 @@ export default class ProductoDetalle extends Component<{}> {
                                     value={opc.Seleccionado || false}
                                     textValue={opc.Nom_Producto}
                                     textPrecio={"S/." + opc.PrecioUnitario.toFixed(2)}
-                                    colorActive={'#ef6d13'}
+                                    colorActive={global.tema.primary}
                                     textStyle={{ color: '#95a5a6' }} />
                             }
                             {opc.CantidadMax_Grupo > 1 &&
@@ -154,7 +155,7 @@ export default class ProductoDetalle extends Component<{}> {
                                     OnPressAgregarProducto={() => this.OnPressAgregarProducto(opc.Item_Detalle, opc.Cod_TipoDetalle)}
                                     OnPresRestarProducto={() => this.OnPresRestarProducto(opc.Item_Detalle, opc.Cod_TipoDetalle)}
                                     style={{ padding: 5 }}
-                                    colorIcon={"#ef6d13"}
+                                    colorIcon={global.tema.primary}
                                     textValue={opc.Nom_Producto}
                                     textPrecio={"S/." + opc.PrecioUnitario.toFixed(2)}
                                     Cantidad_Seleccionada={opc.Cantidad || 0}

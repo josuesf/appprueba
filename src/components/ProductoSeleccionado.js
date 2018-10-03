@@ -110,13 +110,13 @@ export default class ProductoSeleccionado extends Component {
                         {this.props.producto.Estado_Pedido != 'CONFIRMA' && <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             {parseInt(this.props.producto.Cantidad) > 1 &&
                                 <TouchableOpacity onPress={() => this.RestarProducto()} style={{ marginRight: 10 }}>
-                                    <IconMaterial color={"#ef6d13"} name='minus-box-outline' size={30} />
+                                    <IconMaterial color={global.tema.primary}name='minus-box-outline' size={30} />
                                 </TouchableOpacity>
                             }
 
                             <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >{this.state.Cantidad}</Text>
                             <TouchableOpacity onPress={() => this.AgregarProducto()} style={{ marginLeft: 10 }}>
-                                <IconMaterial color={"#ef6d13"} name='plus-box-outline' size={30} />
+                                <IconMaterial color={global.tema.primary} name='plus-box-outline' size={30} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => this.setState({ preguntaEliminar: true })} style={{ marginLeft: 10 }}>
                                 <IconMaterial color="#95a5a6" name='delete' size={30} />
@@ -130,7 +130,7 @@ export default class ProductoSeleccionado extends Component {
                                 value={this.state.para_llevar}
                                 textValue={"Para llevar"}
                                 textPrecio={""}
-                                colorActive={'#ef6d13'}
+                                colorActive={global.tema.primary}
                                 textStyle={{ color: '#95a5a6' }} />
                             
                         </View>}

@@ -111,7 +111,7 @@ android {
         release {
             keyAlias 'josuesf_key_alias'
             keyPassword 'josuesf'
-            storeFile file('/Users/josuesf/Documents/ReactNative/appyksim/android/app/josuesf_key.keystore')
+            storeFile file('C:/Users/Frank/Documents/GitHub/appyksim/android/app/josuesf_key.keystore')
             storePassword 'josuesf'
         }
     }

@@ -34,15 +34,15 @@ export default class DivisionCuenta extends Component {
         const params = navigation.state.params || {};
         return {
             title: 'Division Cuenta',
-            headerTintColor: '#ffeaa7',
+            headerTintColor: '#FFF',
             headerBackTitle: 'Atras',
             headerStyle: {
-                backgroundColor: '#FF5733',
+                backgroundColor: global.tema.primary,
             },
             headerRight: (
                 store.getState().tipo_usuario == 'EMPLEADO' &&
                 <TouchableOpacity onPress={params.guardar} style={{ paddingHorizontal: 10 }}>
-                    <Text style={{ color: '#ffeaa7', fontWeight: 'bold' }}>Guardar</Text>
+                    <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Guardar</Text>
                 </TouchableOpacity>
             ),
         }

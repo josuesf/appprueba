@@ -60,6 +60,9 @@ export default class Home extends Component<{}> {
             if (this.refs.pedidos_ref)
                 this.CalcularTotal()
         })
+        if(this.props.navigation.state.params.IdComprobanteOrigen){
+            this.props.navigation.navigate('pedido',{ IdComprobanteOrigen: this.props.navigation.state.params.IdComprobanteOrigen })
+        }
     }
     CalcularTotal = () => {
         productos = store.getState().productos.filter(p => p.Cod_Mesa == store.getState().Cod_Mesa && p.Numero == store.getState().Numero_Comprobante)
@@ -169,20 +172,20 @@ export default class Home extends Component<{}> {
         return (
             <View style={styles.container}>
                 <StatusBar
-                    backgroundColor="#F9360C"
+                    backgroundColor={global.tema.primaryDark}//"#F9360C"
                     barStyle="default"
                 />
-                <View style={{ height: 60, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FF5733', justifyContent: 'center' }}>
+                <View style={{ height: 60, flexDirection: 'row', alignItems: 'center', backgroundColor: global.tema.primary, justifyContent: 'center' }}>
                     <TouchableOpacity onPress={() => goBack()} style={{ paddingHorizontal: 10 }}>
-                        <IconMaterial color={'#ffeaa7'} name='arrow-left' size={25} />
+                        <IconMaterial color={'#FFF'} name='arrow-left' size={25} />
                     </TouchableOpacity>
                     <View style={{ flex: 1, marginHorizontal: 10 }}>
-                        <Text style={{ color: '#ffeaa7', fontWeight: 'bold' }}>{store.getState().Nom_Mesa}</Text>
-                        <Text style={{ color: '#ffeaa7' }}>Cuenta {store.getState().Numero_Cuenta}</Text>
+                        <Text style={{ color: '#FFF', fontWeight: 'bold' }}>{store.getState().Nom_Mesa}</Text>
+                        <Text style={{ color: '#FFF' }}>Cuenta {store.getState().Numero_Cuenta}</Text>
                     </View>
                     {store.getState().Numero_Comprobante != '' &&
                         <TouchableOpacity onPress={() => this.setState({ OpcionesVisible: true })} style={{ paddingHorizontal: 10 }}>
-                            <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
+                            <IconMaterial color={'#FFF'} name='dots-vertical' size={25} />
                         </TouchableOpacity>}
                 </View>
                 <ProgressDialog
@@ -214,13 +217,13 @@ export default class Home extends Component<{}> {
                                 <TouchableOpacity onPress={() => this.SeleccionarCategoriaHija(item.Cod_Categoria, item.Seleccionado, index)}
                                     activeOpacity={0.7} style={{ backgroundColor: '#FFF', flexDirection: 'row', alignItems: 'center', marginRight: 1 }}>
 
-                                    <Text style={{ color: item.Seleccionado == 1 ? '#f60606' : '#95a5a6', flex: 1, fontWeight: 'bold', paddingHorizontal: 5, marginLeft: 10, paddingVertical: 10 }}>
+                                    <Text style={{ color: item.Seleccionado == 1 ? global.tema.primary : '#95a5a6', flex: 1, fontWeight: 'bold', paddingHorizontal: 5, marginLeft: 10, paddingVertical: 10 }}>
                                         {item.Des_Categoria}
                                     </Text>
                                     <IconMaterial
                                         name={item.Seleccionado != 1 ? 'chevron-down' : 'chevron-up'}
                                         size={25} style={{ marginHorizontal: 10 }}
-                                        color={item.Seleccionado == 1 ? '#f60606' : '#95a5a6'}
+                                        color={item.Seleccionado == 1 ? global.tema.primary : '#95a5a6'}
                                     />
 
                                 </TouchableOpacity>
@@ -244,12 +247,12 @@ export default class Home extends Component<{}> {
                                     { IdComprobanteOrigen: this.props.navigation.state.params.IdComprobanteOrigen })}
                                 // onPress={this.IrIndex}
                                 style={{
-                                    height: 50, backgroundColor: '#FF5733',
+                                    height: 50, backgroundColor: global.tema.primaryDark,
                                     borderRadius: 5, marginHorizontal: 10, marginBottom: 10,
                                     flexDirection: 'row', alignItems: 'center'
                                 }}>
                                 <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center', marginHorizontal: 10 }}>
-                                    <Text style={{ fontWeight: 'bold', color: '#ffeaa7' }}>Ver Items ({this.state.cantidad_items})</Text>
+                                    <Text style={{ fontWeight: 'bold', color: '#FFF' }}>Ver Items ({this.state.cantidad_items})</Text>
                                 </View>
 
                                 {/* {<Text style={{ marginHorizontal: 10, fontWeight: 'bold', color: '#ffeaa7' }}>Total {(this.state.total).toFixed(2)}</Text>} */}

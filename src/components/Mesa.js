@@ -53,16 +53,18 @@ export default class Mesa extends Component {
         return (
             <View style={{ alignItems: 'center', flexDirection: 'column' }}>
 
-                <TouchableOpacity ref='ref_Mesa' activeOpacity={0.7} onPress={this.props.SeleccionarMesa} style={{
+                <TouchableOpacity ref='ref_Mesa' activeOpacity={0.7} onPress={this.props.SeleccionarMesa} 
+                    style={{
                     marginBottom: 10, height: this.props.width_state / 5, width: this.props.width_state / 5,
                     justifyContent: 'center',
-                    backgroundColor: '#FFF', alignItems: 'center', borderColor: ColorMesa(this.state.Estado_Mesa), borderWidth: 2,
+                    backgroundColor: '#FFF', alignItems: 'center',
+                    //borderColor: ColorMesa(this.state.Estado_Mesa), borderWidth: 2,
                     marginRight: 15
                 }}>
-                    {this.state.Nro_Cuentas > 0 && <View style={{ backgroundColor: 'red', height: 20, width: 20, borderRadius: 10, alignItems: 'center' }}>
-                        <Text style={{ color: '#FFF' }}>{this.state.Nro_Cuentas}</Text>
+                    {this.state.Nro_Cuentas > 0 && <View style={{ backgroundColor: 'red', height: 20, width: 20, borderRadius: 10, justifyContent: 'center' }}>
+                        <Text style={{ color: '#FFF',fontSize:12,alignSelf:'center' }}>{this.state.Nro_Cuentas}</Text>
                     </View>}
-                    <Text style={{ alignSelf: 'center', fontWeight: 'bold', color: '#2c2c54' }}>{this.props.mesa.Nom_Mesa}</Text>
+                    <Text style={{ alignSelf: 'center', fontWeight: 'bold',fontSize:12, color: '#2c2c54' }}>{this.props.mesa.Nom_Mesa}</Text>
                     <Text style={{ fontSize: 8, color: '#2c2c54' }}>{this.state.Mesero}</Text>
                 </TouchableOpacity>
             </View>

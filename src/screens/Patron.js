@@ -23,25 +23,28 @@ import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NavigationActions } from 'react-navigation'
 import WifiManager from 'react-native-wifi-manager'
 import Camera from 'react-native-camera'
-import { ProgressDialog,ConfirmDialog } from 'react-native-simple-dialogs';
+import { ProgressDialog, ConfirmDialog, Dialog } from 'react-native-simple-dialogs';
 import { URL_WS } from '../Constantes'
 import { fetchData } from '../utils/fetchData'
+import { temas } from '../utils/temas'
 import store from '../store'
 
 export default class Patron extends Component<{}> {
-    
+
     static navigationOptions = ({ navigation }) => {
         const params = navigation.state.params || {};
         return {
             title: 'Ingrese Pin',
-            headerTintColor: '#78C8B4',
+            headerTintColor: params.colorTema,
             headerStyle: {
                 backgroundColor: '#FFF',
             },
             headerRight: (
-                <TouchableOpacity onPress={params.CerrarSesion} style={{ paddingHorizontal: 10 }}>
-                    <IconMaterial color={'#78C8B4'} name='power' size={25} />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TouchableOpacity onPress={params.CerrarSesion} style={{ paddingHorizontal: 10 }}>
+                        <IconMaterial color={params.colorTema} name='power' size={25} />
+                    </TouchableOpacity>
+                </View>
             ),
         }
     }
@@ -59,11 +62,13 @@ export default class Patron extends Component<{}> {
     }
 
     componentWillMount() {
-        AsyncStorage.getItem('DATA_INI',(err,datos)=>{
-            if(datos && datos!=null){
+        
+        
+        AsyncStorage.getItem('DATA_INI', (err, datos) => {
+            if (datos && datos != null) {
                 datos = JSON.parse(datos)
                 global.URL_WS = datos.host_ip
-            }else{
+            } else {
                 const configInicial = NavigationActions.reset({
                     index: 0,
                     actions: [
@@ -75,12 +80,23 @@ export default class Patron extends Component<{}> {
         })
         this.props.navigation.setParams({ CerrarSesion: this.PreguntaCerrarSesion });
     }
-    PreguntaCerrarSesion=()=>{
-        this.setState({preguntaCerrarSesion:true})
+    componentDidMount(){
+        temas((tema_seleccionado, temas) => {
+            this.setState({
+                temas,
+                tema_seleccionado
+            })
+            this.props.navigation.setParams({ colorTema: tema_seleccionado.primary })
+            global.tema = tema_seleccionado
+        })
     }
-    CerrarSesion=()=>{
-        AsyncStorage.removeItem('DATA_INI',(err)=>{
-            if(!err){
+    PreguntaCerrarSesion = () => {
+        this.setState({ preguntaCerrarSesion: true })
+    }
+    
+    CerrarSesion = () => {
+        AsyncStorage.removeItem('DATA_INI', (err) => {
+            if (!err) {
                 const configInicial = NavigationActions.reset({
                     index: 0,
                     actions: [
@@ -101,11 +117,11 @@ export default class Patron extends Component<{}> {
                             pin: this.state.patron
                         }
                         , (data, err) => {
-                            if (err){
+                            if (err) {
                                 setTimeout(() => {
                                     this.setState({ patron: '' })
                                 }, 1000)
-                                Alert.alert('Error', err.toString()+"\nVerifique su configuracion de conexion.\nVerifique el estado del programa controlador.")
+                                Alert.alert('Error', err.toString() + "\nVerifique su configuracion de conexion.\nVerifique el estado del programa controlador.")
                             }
                             else {
                                 if (data.respuesta.length > 0) {
@@ -132,18 +148,18 @@ export default class Patron extends Component<{}> {
                                 }
                             }
                         })
-                   
+
 
                 }
             })
     }
     render() {
         const { navigate } = this.props.navigation;
-        const { patron } = this.state
+        const { patron, tema_seleccionado } = this.state
         return (
             <View style={styles.container}>
                 <StatusBar
-                    backgroundColor="#78C8B4"
+                    backgroundColor={tema_seleccionado ? tema_seleccionado.primaryDark : '#78C8B4'}//global.tema.primaryDark
                     barStyle="default"
                 />
                 <ProgressDialog
@@ -153,7 +169,7 @@ export default class Patron extends Component<{}> {
                     title="Conectando"
                     message="Por favor, espere..."
                 />
-                  <ConfirmDialog
+                <ConfirmDialog
                     title="Cerrar Sesion"
                     message="Se perdera todos los datos de configuracion,esta seguro de cerrar sesion?"
                     visible={this.state.preguntaCerrarSesion}
@@ -167,6 +183,7 @@ export default class Patron extends Component<{}> {
                         onPress: () => this.setState({ preguntaCerrarSesion: false })
                     }}
                 />
+               
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
                     <IconMaterial style={{ marginRight: 10 }}
                         name={patron.length > 0 ? "circle" : "circle-outline"} size={20} color="#FFA69E" />
@@ -194,7 +211,7 @@ export default class Patron extends Component<{}> {
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 20, marginHorizontal: 20 }}>
-                <TouchableOpacity onPress={() => this.PressNumero(4)}
+                    <TouchableOpacity onPress={() => this.PressNumero(4)}
                         activeOpacity={0.7} style={styles.btnNumero}>
                         <Text style={styles.btnTextNumero}>4</Text>
                     </TouchableOpacity>
@@ -210,7 +227,7 @@ export default class Patron extends Component<{}> {
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 20, marginHorizontal: 20 }}>
-                <TouchableOpacity onPress={() => this.PressNumero(7)}
+                    <TouchableOpacity onPress={() => this.PressNumero(7)}
                         activeOpacity={0.7} style={styles.btnNumero}>
                         <Text style={styles.btnTextNumero}>7</Text>
                     </TouchableOpacity>
@@ -226,7 +243,7 @@ export default class Patron extends Component<{}> {
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 20, marginHorizontal: 20 }}>
-                <TouchableOpacity
+                    <TouchableOpacity
                         onPress={() => this.PressNumero(0)}
                         activeOpacity={0.7} style={styles.btnNumero}>
                         <Text style={styles.btnTextNumero}>0</Text>
@@ -246,7 +263,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
     },
     btnNumero: {
-        backgroundColor: '#78C8B4', marginHorizontal: 30,
+        backgroundColor: 'lightgray', marginHorizontal: 30,
         width: 70, height: 70, justifyContent: 'center',
         borderRadius: 35
     },

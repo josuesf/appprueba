@@ -71,12 +71,12 @@ export default class ProductoDivision extends Component {
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 20 }}>
                     {divisible && 
                     <TouchableOpacity onPress={() => this.RestarProducto()} style={{ marginRight: 10 }}>
-                        <IconMaterial color={"#ef6d13"} name='minus-box-outline' size={30} />
+                        <IconMaterial color={global.tema.primary} name='minus-box-outline' size={30} />
                     </TouchableOpacity>}
 
                     {divisible && <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#95a5a6' }} >{this.props.producto.cantidad_seleccionada}</Text>}
                     {divisible && <TouchableOpacity onPress={() => this.AgregarProducto()} style={{ marginLeft: 10 }}>
-                        <IconMaterial color={"#ef6d13"} name='plus-box-outline' size={30} />
+                        <IconMaterial color={global.tema.primary} name='plus-box-outline' size={30} />
                     </TouchableOpacity> }
                     <Text style={{ color: '#95a5a6', fontWeight: 'bold', marginRight: 40, marginLeft: 10, flex: 1 }}>{this.props.producto.Nom_Producto}</Text>
                     <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#95a5a6' }} > {this.props.producto.Cantidad}</Text>

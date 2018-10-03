@@ -24,6 +24,7 @@ export default class Ambiente extends Component {
         this.state = {
             conectando: true,
             Cod_Ambiente: props.Cod_Ambiente,
+            Nom_Ambiente: props.Nom_Ambiente,
             mesas: [],
             OrientationStatus: '',
             Height_Layout: '',
@@ -107,11 +108,16 @@ export default class Ambiente extends Component {
                                 Numero_Comprobante: data.productos_selec[0].Numero,
                                 Numero_Cuenta: 1
                             })
-                            this.props.navigation.navigate('main',
-                                {
-                                    productos_selec: data.productos_selec
-                                    , IdComprobanteOrigen
-                                })
+                            if (!IdComprobanteOrigen) {
+                                this.props.navigation.navigate('main',
+                                    {
+                                        productos_selec: data.productos_selec
+                                        , IdComprobanteOrigen
+                                    })
+                            } else {
+                                this.props.navigation.navigate('pedido', { IdComprobanteOrigen })
+                            }
+
                         } else {
                             this.setState({ OpcionesVisible: true })
                         }
@@ -122,11 +128,15 @@ export default class Ambiente extends Component {
                         type: 'ADD_NUMERO_COMPROBANTE',
                         Numero_Comprobante: '',
                     })
-                    this.props.navigation.navigate('main',
-                        {
-                            productos_selec: data.productos_selec
-                            , IdComprobanteOrigen
-                        })
+                    if (!IdComprobanteOrigen) {
+                        this.props.navigation.navigate('main',
+                            {
+                                productos_selec: data.productos_selec
+                                , IdComprobanteOrigen
+                            })
+                    } else {
+                        this.props.navigation.navigate('pedido', { IdComprobanteOrigen })
+                    }
                 }
             })
         }
@@ -141,11 +151,15 @@ export default class Ambiente extends Component {
             Numero_Comprobante: Numero,
             Numero_Cuenta: Numero_Cuenta
         })
-        this.props.navigation.navigate('main',
-            {
-                productos_selec: [],
-                IdComprobanteOrigen
-            })
+        if (!IdComprobanteOrigen) {
+            this.props.navigation.navigate('main',
+                {
+                    productos_selec: [],
+                    IdComprobanteOrigen
+                })
+        } else {
+            this.props.navigation.navigate('pedido', { IdComprobanteOrigen })
+        }
     }
     DetectOrientation() {
         if (this.state.Width_Layout > this.state.Height_Layout) {
@@ -168,14 +182,14 @@ export default class Ambiente extends Component {
     render() {
         let screenWidth = Dimensions.get('window').width
         let screenHeight = Dimensions.get('window').height
-        let { Cod_Ambiente } = this.state
+        let { Cod_Ambiente, Nom_Ambiente } = this.state
         return (
             <View onLayout={(event) => this.setState({
                 Width_Layout: event.nativeEvent.layout.width,
                 Height_Layout: event.nativeEvent.layout.height
             }, () => this.DetectOrientation())}
                 key={Cod_Ambiente} style={{
-                    backgroundColor: 'tomato',
+                    backgroundColor: global.tema.primary,//'#78C8B4',
                     flex: 1,
                     //marginTop:20,
                     paddingVertical: 5,
@@ -193,11 +207,11 @@ export default class Ambiente extends Component {
                     title="Conectando"
                     message="Por favor, espere..."
                 />
-                <Text style={styles.instructions}>{Cod_Ambiente}</Text>
+                <Text style={styles.instructions}>{Nom_Ambiente}</Text>
                 <FlatList
 
                     data={this.state.mesas}
-                    numColumns={4}
+                    numColumns={5}
                     keyExtractor={(item, index) => index}
                     renderItem={({ item }) => (
                         <Mesa width_state={this.state.Width_Layout} height_state={this.state.Height_Layout} mesa={item}
@@ -208,15 +222,16 @@ export default class Ambiente extends Component {
                 />
                 <Dialog
                     visible={this.state.OpcionesVisible}
-                    onTouchOutside={() => this.setState({ OpcionesVisible: false })} >
-                    <View>
+                    onTouchOutside={() => this.setState({ OpcionesVisible: false })}
+                    onRequestClose={() => this.setState({ OpcionesVisible: false })} >
+                    <ScrollView>
                         {this.state.cuentas_mesa.map((c, i) =>
                             <TouchableOpacity key={i} activeOpacity={0.5} onPress={() => this.AbrirCuentaMesa(c.Numero, i + 1)}
                                 style={{ marginVertical: 10, backgroundColor: '#fff' }}>
-                                <Text style={{ fontWeight: 'bold', color: 'gray' }}>Cuenta {i + 1}</Text>
+                                <Text style={{ fontWeight: 'bold', color: 'gray' }}>Cuenta {i + 1}  Total : S/.{parseFloat(c.Total).toFixed(2)}</Text>
                             </TouchableOpacity>
                         )}
-                    </View>
+                    </ScrollView>
                 </Dialog>
             </View>
         )

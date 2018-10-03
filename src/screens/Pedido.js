@@ -32,15 +32,15 @@ export default class Pedido extends Component<{}> {
         const params = navigation.state.params || {};
         return {
             title: 'Pedido',
-            headerTintColor: '#ffeaa7',
+            headerTintColor: '#FFF',
             headerBackTitle: 'Atras',
             headerStyle: {
-                backgroundColor: '#FF5733',
+                backgroundColor: global.tema?global.tema.primary:'#000',
             },
             headerRight: (
                 store.getState().tipo_usuario == 'EMPLEADO' &&
                 <TouchableOpacity onPress={params.AbrirOpciones} style={{ paddingHorizontal: 10 }}>
-                    <IconMaterial color={'#ffeaa7'} name='dots-vertical' size={25} />
+                    <IconMaterial color={"#FFF"} name='dots-vertical' size={25} />
                 </TouchableOpacity>
 
             ),
@@ -302,7 +302,8 @@ export default class Pedido extends Component<{}> {
                     routeName: 'mesas',
                     params:
                     {
-                        IdComanda: this.state.Id_Comprobante
+                        IdComanda: this.state.Id_Comprobante,
+                        Fusion:true
                     }
                 })
             ]
@@ -311,9 +312,9 @@ export default class Pedido extends Component<{}> {
     }
     RecuperarIdComprobante = () => {
         if (this.state.Numero_Comprobante != '') {
+            console.log(this.state.Numero_Comprobante)
             fetchData('/get_id_comprobante', 'POST', { Numero: this.state.Numero_Comprobante }, (res, err) => {
                 if (err) console.log(err)
-                console.log(res)
                 this.setState({
                     Id_Comprobante: res.respuesta[0].Id_Comprobante
                 })

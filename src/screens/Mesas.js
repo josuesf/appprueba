@@ -59,7 +59,7 @@ export default class Mesas extends Component {
         return (
             <View style={styles.container} >
                 <StatusBar
-                    backgroundColor="#F9360C"
+                    backgroundColor={global.tema.primaryDark}//"#66B09E"
                     barStyle="default"
                 />
                 {/* <ScrollView
@@ -69,7 +69,7 @@ export default class Mesas extends Component {
                 <Swiper dot={<View style={{ backgroundColor: 'rgba(255,255,255,.3)', width: 13, height: 13, borderRadius: 7, marginLeft: 7, marginRight: 7 }} />}
                     activeDot={<View style={{ backgroundColor: '#fff', width: 13, height: 13, borderRadius: 7, marginLeft: 7, marginRight: 7 }} />} loop={false}>
                     {this.state.ambientes.map(ambiente =>
-                        <Ambiente key={ambiente.Cod_Ambiente} Cod_Ambiente={ambiente.Cod_Ambiente} navigation={this.props.navigation} />
+                        <Ambiente key={ambiente.Cod_Ambiente} Nom_Ambiente={ambiente.Nom_Ambiente} Cod_Ambiente={ambiente.Cod_Ambiente} navigation={this.props.navigation} />
                     )}
                 </Swiper>
                 {/* </ScrollView> */}
